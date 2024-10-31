@@ -20,7 +20,7 @@
               <i class="fa fa-search"></i>
             </span>
           </div>
-          <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for something">
+          <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for your dream car">
         </div>
       </div>
     </div>
