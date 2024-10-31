@@ -20,11 +20,7 @@
               <i class="fa fa-search"></i>
             </span>
           </div>
-<<<<<<< HEAD
           <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for your dream car">
-=======
-          <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for something silly">
->>>>>>> origin/main
         </div>
       </div>
     </div>
