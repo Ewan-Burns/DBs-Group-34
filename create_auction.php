@@ -11,27 +11,59 @@
         <div class="form-group row">
           <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Title of auction</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" id="auctionTitle" name="auctionTitle" placeholder="e.g. Black mountain bike">
-            <small id="titleHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> A short description of the item you're selling, which will display in listings.</small>
+            <input type="text" class="form-control" id="auctionTitle" name="auctionTitle" placeholder="e.g. Black Mercedes SLS">
+            <small id="titleHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> A short description of your car, which will display in listings.</small>
           </div>
         </div>
         <div class="form-group row">
-          <label for="auctionDetails" class="col-sm-2 col-form-label text-right">Details</label>
+          <label for="auctionDescription" class="col-sm-2 col-form-label text-right">Description</label>
           <div class="col-sm-10">
-            <textarea class="form-control" id="auctionDetails" name="auctionDetails" rows="4"></textarea>
-            <small id="detailsHelp" class="form-text text-muted">Full details of the listing to help bidders decide if it's what they're looking for.</small>
+            <textarea class="form-control" id="auctionDescription" name="auctionDescription" rows="4"></textarea>
+            <small id="descriptionHelp" class="form-text text-muted">Full details of the listing to help bidders decide if it's what they're looking for.</small>
           </div>
         </div>
         <div class="form-group row">
-          <label for="auctionCategory" class="col-sm-2 col-form-label text-right">Category</label>
+          <label for="auctionMake" class="col-sm-2 col-form-label text-right">Make</label>
           <div class="col-sm-10">
-            <select class="form-control" id="auctionCategory" name="auctionCategory">
+            <select class="form-control" id="auctionMake" name="auctionMake">
               <option selected>Choose...</option>
-              <option value="fill">Fill me in</option>
-              <option value="with">with options</option>
-              <option value="populated">populated from a database?</option>
+              <option value="mercedes">Mercedes</option>
+              <option value="bmw">BMW</option>
+              <option value="audi">Audi</option>
             </select>
-            <small id="categoryHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a category for this item.</small>
+            <small id="makeHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a make for your car.</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="auctionBody" class="col-sm-2 col-form-label text-right">Body type</label>
+          <div class="col-sm-10">
+            <select class="form-control" id="auctionBody" name="auctionBody">
+              <option selected>Choose...</option>
+              <option value="coupe">Coupe</option>
+              <option value="convertible">Convertible</option>
+              <option value="sports">Sportscar</option>
+              <option value="supercar">Supercar</option>
+            </select>
+            <small id="makeHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a body type for your car.</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="auctionYear" class="col-sm-2 col-form-label text-right">Year</label>
+          <div class="col-sm-10">
+            <input type="int" class="form-control" id="auctionYear" name="auctionYear" placeholder="e.g. 1967">
+            <small id="yearHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> The production year of the car you're selling, which will display in listings.</small>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="auctionMileage" class="col-sm-2 col-form-label text-right">Mileage</label>
+          <div class="col-sm-10">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">KM</span>
+              </div>
+              <input type="number" class="form-control" id="auctionMileage" name="auctionMileage">
+            </div>
+            <small id="mileageHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Mileage on the car</small>
           </div>
         </div>
         <div class="form-group row">
