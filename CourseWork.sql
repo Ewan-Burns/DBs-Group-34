@@ -96,11 +96,7 @@ INSERT INTO `CarTypes` (`carTypeID`, `colour`, `make`, `bodyStyle`, `year`, `mil
 CREATE TABLE `Items` (
   `itemID` int(11) NOT NULL,
   `userID` int(11) NOT NULL,
-<<<<<<< HEAD
   `auctionTitle` text NOT NULL,
-=======
-  'auctionTitle' varchar(100) NOT NULL,
->>>>>>> 9c55ba6a0caf3ab5f5b4d4fd3e30785b4cd1e319
   `cartypeID` int(11) NOT NULL,
   `image` longblob NOT NULL,
   `startingPrice` float NOT NULL,
