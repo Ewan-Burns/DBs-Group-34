@@ -106,6 +106,37 @@
      retrieved from the query -->
 
 <?php
+
+  // Include the database connection
+  require_once 'database_connect.php';
+
+  // Fetch items from the database
+  $query = "SELECT itemID, auctionTitle, description, startingPrice, endDate FROM Items";
+  $result = $conn->query($query);
+
+  // Check if the query was successful
+  if ($result && $result->num_rows > 0) {
+      // Loop through each item and display it
+      while ($row = $result->fetch_assoc()) {
+          $title = $row['auctionTitle'];
+          $description = $row['description'];
+          $current_price = $row['startingPrice'];
+          $num_bids = 0;
+          $end_date = new DateTime($row['endDate']);
+          $item_id = $row['itemID'];
+
+          // Use the existing function to display the item
+          print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+      }
+  } else {
+      echo "No items available.";
+  }
+
+  // Free result set and close the connection
+  $result->free();
+  $conn->close();
+
+  /*
   // Demonstration of what listings will look like using dummy data.
   $item_id = "87021";
   $title = "Dummy title";
@@ -125,6 +156,7 @@
   $end_date = new DateTime('2020-11-02T00:00:00');
   
   print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+  */
 ?>
 
 </ul>

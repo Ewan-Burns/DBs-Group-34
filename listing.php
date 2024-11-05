@@ -2,36 +2,56 @@
 <?php require("utilities.php")?>
 
 <?php
-  // Get info from the URL:
-  $item_id = $_GET['item_id'];
+// Include the database connection
+require_once 'database_connect.php';
 
-  // TODO: Use item_id to make a query to the database.
+// Get item_id from the URL
+$item_id = $_GET['item_id'];
 
-  // DELETEME: For now, using placeholder data.
-  $title = "Placeholder title";
-  $description = "Description blah blah blah";
-  $current_price = 30.50;
-  $num_bids = 1;
-  $end_time = new DateTime('2020-11-02T00:00:00');
+// Default placeholder values in case the query fails
+$title = "Your query failed to retrieve the item's title.";
+$description = "Your query failed to retrieve the item's description.";
+$current_price = "Your query failed to retrieve the item's current price.";
+$num_bids = 0;
+$end_time = new DateTime('2020-11-02T00:00:00');
 
-  // TODO: Note: Auctions that have ended may pull a different set of data,
-  //       like whether the auction ended in a sale or was cancelled due
-  //       to lack of high-enough bids. Or maybe not.
-  
-  // Calculate time to auction end:
-  $now = new DateTime();
-  
-  if ($now < $end_time) {
+// Query the database for the item’s details
+if (isset($item_id)) {
+    $stmt = $conn->prepare("SELECT auctionTitle, description, startingPrice, endDate FROM items WHERE itemID = ?");
+    $stmt->bind_param("i", $item_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    // Check if the item was found
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $title = $row['auctionTitle'];
+        $description = $row['description'];
+        $current_price = $row['startingPrice'];
+        $end_time = new DateTime($row['endDate']);
+    }
+    
+    // Free result and close the statement
+    $result->free();
+    $stmt->close();
+}
+
+// Calculate time to auction end
+$now = new DateTime();
+if ($now < $end_time) {
     $time_to_end = date_diff($now, $end_time);
     $time_remaining = ' (in ' . display_time_remaining($time_to_end) . ')';
-  }
-  
-  // TODO: If the user has a session, use it to make a query to the database
-  //       to determine if the user is already watching this item.
-  //       For now, this is hardcoded.
-  $has_session = true;
-  $watching = false;
+} else {
+    $time_remaining = "Auction ended";
+}
+
+// TODO: If the user has a session, use it to make a query to the database
+//       to determine if the user is already watching this item.
+//       For now, this is hardcoded.
+$has_session = true;
+$watching = false;
 ?>
+
 
 
 <div class="container">
@@ -77,15 +97,20 @@
     <p class="lead">Current bid: £<?php echo(number_format($current_price, 2)) ?></p>
 
     <!-- Bidding form -->
+    <!-- Bidding form -->
     <form method="POST" action="place_bid.php">
+      <!-- Hidden input for itemID -->
+      <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($item_id); ?>">
+
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text">£</span>
         </div>
-	    <input type="number" class="form-control" id="bid">
+        <input type="number" class="form-control" id="bid" name="bid" required>
       </div>
       <button type="submit" class="btn btn-primary form-control">Place bid</button>
     </form>
+    
 <?php endif ?>
 
   
