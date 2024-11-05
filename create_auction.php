@@ -7,7 +7,8 @@
   <h2 class="my-3">Create new auction</h2>
   <div class="card">
     <div class="card-body">
-      <form method="post" action="create_auction_result.php">
+      <form method="post" action="create_auction_result.php" enctype="multipart/form-data">
+        <!-- Title field -->
         <div class="form-group row">
           <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Title of auction</label>
           <div class="col-sm-10">
@@ -15,6 +16,8 @@
             <small id="titleHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> A short description of your car, which will display in listings.</small>
           </div>
         </div>
+
+        <!-- Description field -->
         <div class="form-group row">
           <label for="auctionDescription" class="col-sm-2 col-form-label text-right">Description</label>
           <div class="col-sm-10">
@@ -22,6 +25,17 @@
             <small id="descriptionHelp" class="form-text text-muted">Full details of the listing to help bidders decide if it's what they're looking for.</small>
           </div>
         </div>
+
+        <!-- Image upload field -->
+        <div class="form-group row">
+          <label for="auctionImage" class="col-sm-2 col-form-label text-right">Upload Image</label>
+          <div class="col-sm-10">
+            <input type="file" class="form-control" id="auctionImage" name="auctionImage" accept="image/*">
+            <small id="imageHelp" class="form-text text-muted">Optional. Upload an image of the car.</small>
+          </div>
+        </div>
+
+        <!-- Make field -->
         <div class="form-group row">
           <label for="auctionMake" class="col-sm-2 col-form-label text-right">Make</label>
           <div class="col-sm-10">
@@ -34,6 +48,8 @@
             <small id="makeHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a make for your car.</small>
           </div>
         </div>
+
+        <!-- Body type field -->
         <div class="form-group row">
           <label for="auctionBody" class="col-sm-2 col-form-label text-right">Body type</label>
           <div class="col-sm-10">
@@ -47,6 +63,8 @@
             <small id="makeHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Select a body type for your car.</small>
           </div>
         </div>
+
+        <!-- Year field -->
         <div class="form-group row">
           <label for="auctionYear" class="col-sm-2 col-form-label text-right">Year</label>
           <div class="col-sm-10">
@@ -54,6 +72,8 @@
             <small id="yearHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> The production year of the car you're selling, which will display in listings.</small>
           </div>
         </div>
+
+        <!-- Mileage field -->
         <div class="form-group row">
           <label for="auctionMileage" class="col-sm-2 col-form-label text-right">Mileage</label>
           <div class="col-sm-10">
@@ -66,6 +86,8 @@
             <small id="mileageHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Mileage on the car</small>
           </div>
         </div>
+
+        <!-- Starting price field -->
         <div class="form-group row">
           <label for="auctionStartPrice" class="col-sm-2 col-form-label text-right">Starting price</label>
           <div class="col-sm-10">
@@ -78,6 +100,8 @@
             <small id="startBidHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Initial bid amount.</small>
           </div>
         </div>
+
+        <!-- Reserve price field -->
         <div class="form-group row">
           <label for="auctionReservePrice" class="col-sm-2 col-form-label text-right">Reserve price</label>
           <div class="col-sm-10">
@@ -90,6 +114,8 @@
             <small id="reservePriceHelp" class="form-text text-muted">Optional. Auctions that end below this price will not go through. This value is not displayed in the auction listing.</small>
           </div>
         </div>
+
+        <!-- End date field -->
         <div class="form-group row">
           <label for="auctionEndDate" class="col-sm-2 col-form-label text-right">End date</label>
           <div class="col-sm-10">
@@ -97,6 +123,7 @@
             <small id="endDateHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> Day for the auction to end.</small>
           </div>
         </div>
+        
         <button type="submit" class="btn btn-primary form-control">Create Auction</button>
       </form>
     </div>

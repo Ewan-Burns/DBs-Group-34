@@ -20,7 +20,6 @@ require_once 'database_connect.php';
             issue, give some semi-helpful feedback to user. */
 
 // Check if the form was submitted
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Debugging: Print the POST array
     echo "<pre>";
@@ -38,8 +37,9 @@ $category = $_POST['auctionCategory'] ?? '';
 $startPrice = $_POST['auctionStartPrice'] ?? '';
 $reservePrice = $_POST['auctionReservePrice'] ?? '';
 $endDate = $_POST['auctionEndDate'] ?? '';
+$image = $_POST['auctionImage'] ?? '';
 
-// Echo all the form variables for debugging
+/* Echo all the form variables for debugging
 echo "<h3>Form Data Received:</h3>";
 echo "<p><strong>Auction Title:</strong> " . htmlspecialchars($title) . "</p>";
 echo "<p><strong>Details:</strong> " . htmlspecialchars($details) . "</p>";
@@ -47,7 +47,7 @@ echo "<p><strong>Category:</strong> " . htmlspecialchars($category) . "</p>";
 echo "<p><strong>Starting Price:</strong> " . htmlspecialchars($startPrice) . "</p>";
 echo "<p><strong>Reserve Price:</strong> " . htmlspecialchars($reservePrice) . "</p>";
 echo "<p><strong>End Date:</strong> " . htmlspecialchars($endDate) . "</p>";
-
+*/
 
 // Initialize an array to store any validation errors
 $errors = [];
@@ -102,8 +102,8 @@ if (!empty($errors)) {
     echo "All fields are valid. Proceed with auction creation.";
 
    // Insert query
-    $sql = "INSERT INTO Items (auctionTitle, description, startingPrice, reservePrice, endDate)
-    VALUES ('$title', '$details', '$startPrice', '$reservePrice', '$endDate')";
+    $sql = "INSERT INTO Items (auctionTitle, image, description, startingPrice, reservePrice, endDate)
+    VALUES ('$title', '$image', '$details', '$startPrice', '$reservePrice', '$endDate')";
 
     // Execute query and check for success
     if ($conn->query($sql) === TRUE) {

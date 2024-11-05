@@ -111,7 +111,7 @@
   require_once 'database_connect.php';
 
   // Fetch items from the database
-  $query = "SELECT itemID, auctionTitle, description, startingPrice, endDate FROM Items";
+  $query = "SELECT itemID, auctionTitle, image, description, startingPrice, endDate FROM Items";
   $result = $conn->query($query);
 
   // Check if the query was successful
@@ -124,9 +124,10 @@
           $num_bids = 0;
           $end_date = new DateTime($row['endDate']);
           $item_id = $row['itemID'];
+          $image = $row['image'];
 
           // Use the existing function to display the item
-          print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
+          print_listing_li($item_id, $title, $image, $description, $current_price, $num_bids, $end_date);
       }
   } else {
       echo "No items available.";
