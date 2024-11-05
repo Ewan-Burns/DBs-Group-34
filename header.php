@@ -76,6 +76,11 @@
   </ul>
 </nav>
 
+<!-- Header image (Mustang) -->
+<div class="text-center my-3">
+  <img src="images/mustang.jpg" alt="Mustang" class="img-fluid" style="width: 100%; height: auto;">
+</div>
+
 <!-- Login modal -->
 <div class="modal fade" id="loginModal">
   <div class="modal-dialog">
