@@ -14,6 +14,13 @@ $description = "Your query failed to retrieve the item's description.";
 $current_price = "Your query failed to retrieve the item's current price.";
 $num_bids = 0;
 $end_time = new DateTime('2020-11-02T00:00:00');
+$make = "N/A";
+$bodyType = "N/A";
+$colour = "N/A";
+$year = "N/A";
+$mileage = "N/A";
+$image_src = '';
+
 
 // Query the database for the item’s details
 if (isset($item_id)) {
@@ -26,11 +33,18 @@ if (isset($item_id)) {
         Items.startingPrice, 
         Items.endDate, 
         Items.image,
-        COALESCE(MAX(Bids.amount), Items.startingPrice) AS highestBid
+        COALESCE(MAX(Bids.amount), Items.startingPrice) AS highestBid,
+        CarTypes.make, 
+        CarTypes.bodyType, 
+        CarTypes.colour, 
+        CarTypes.year,
+        CarTypes.mileage
     FROM 
         Items
     LEFT JOIN 
         Bids ON Items.itemID = Bids.itemID
+    LEFT JOIN
+        CarTypes ON Items.carTypeID = CarTypes.carTypeID
     WHERE 
         Items.itemID = $item_id
     GROUP BY 
@@ -52,6 +66,11 @@ if (isset($item_id)) {
         $current_price = $row['highestBid'] ?? $row['startingPrice'];
         $end_time = new DateTime($row['endDate']);
         $image = $row['image'];
+        $make = $row['make'];
+        $bodyType = $row['bodyType'];
+        $colour = $row['colour'];
+        $year = $row['year'];
+        $mileage = $row['mileage'];
     }
     
     // Free result and close the statement
@@ -77,7 +96,7 @@ $watching = false;
 
 
 
-<div class="container">
+<div class="container-fluid">
 
 <div class="row"> <!-- Row #1 with auction title + watch button -->
   <div class="col-sm-8"> <!-- Left col -->
@@ -101,7 +120,7 @@ $watching = false;
 </div>
 
 <div class="row"> <!-- Row #2 with auction description + bidding info -->
-  <div class="col-sm-8"> <!-- Left col with item info -->
+  <div class="col-sm-4"> <!-- Left col with item info -->
 
     <div class="itemDescription">
     <?php echo($description); ?>
@@ -112,6 +131,14 @@ $watching = false;
     <?php echo('<img src="data:image/jpeg;base64,' . base64_encode($image) . '" alt="' . htmlspecialchars($title) . '" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">'); ?>
     </div>
 
+  </div>
+ 
+  <div class="col-sm-4">
+        <p><strong>Make:</strong> <?php echo($make); ?></p>
+        <p><strong>Colour:</strong> <?php echo($colour); ?></p>
+        <p><strong>Body Type:</strong> <?php echo($bodyType); ?></p>
+        <p><strong>Year:</strong> <?php echo($year); ?></p>
+        <p><strong>Mileage:</strong> <?php echo($mileage); ?> miles</p>
   </div>
 
   <div class="col-sm-4"> <!-- Right col with bidding info -->
