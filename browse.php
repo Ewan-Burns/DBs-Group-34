@@ -1,7 +1,7 @@
 <?php include_once("header.php")?>
 <?php require("utilities.php")?>
 
-<div class="container">
+<div class="container mt-3">
 
 <h2 class="my-3">Browse listings</h2>
 
@@ -39,9 +39,9 @@
       <div class="form-inline">
         <label class="mx-2" for="order_by">Sort by:</label>
         <select class="form-control" id="order_by">
+          <option value="date">Soonest expiry</option>
           <option selected value="pricelow">Price (low to high)</option>
           <option value="pricehigh">Price (high to low)</option>
-          <option value="date">Soonest expiry</option>
         </select>
       </div>
     </div>
@@ -105,23 +105,79 @@
 <!-- TODO: Use a while loop to print a list item for each auction listing
      retrieved from the query -->
 
+
+
 <?php
 
   // Include the database connection
   require_once 'database_connect.php';
 
-  // Fetch items from the database
-  $query = "SELECT itemID, auctionTitle, image, description, startingPrice, endDate FROM Items";
+
+  //------------Preparing pagination:--------------
+
+  // Number of items per page
+  $items_per_page = 10;
+
+  //Count the total number of items to calculate the number of pages
+  $count_query = "
+  SELECT COUNT(*) AS total 
+  FROM Items 
+  LEFT JOIN Bids ON Items.itemID = Bids.itemID";
+  $count_result = $conn->query($count_query);
+  $total_items = $count_result->fetch_assoc()['total'];
+
+  // Calculate the total number of pages
+  $max_page = ceil($total_items / $items_per_page);
+
+  // Get the current page from the URL, default to 1 if not set
+  $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+  // Calculate the offset based on the page number
+  $offset = ($curr_page - 1) * $items_per_page;
+
+  //----------------------------------------------
+
+
+  //--------------Querying the items:-------------
+  // Fetch items along with the highest current bid, ordered by endDate, with pagination
+  $query = "
+    SELECT 
+      Items.itemID,
+      Items.auctionTitle,
+      Items.image,
+      Items.description,
+      Items.startingPrice,
+      Items.endDate,
+      MAX(Bids.amount) AS highestBid,
+      COUNT(Bids.amount) AS bidCount
+    FROM 
+      Items
+    LEFT JOIN 
+      Bids ON Items.itemID = Bids.itemID
+    GROUP BY 
+      Items.itemID, 
+      Items.auctionTitle, 
+      Items.image, 
+      Items.description, 
+      Items.startingPrice, 
+      Items.endDate
+    ORDER BY 
+      Items.endDate ASC
+    LIMIT $items_per_page OFFSET $offset";
+
+  // Execute the query
   $result = $conn->query($query);
+
 
   // Check if the query was successful
   if ($result && $result->num_rows > 0) {
+    
       // Loop through each item and display it
       while ($row = $result->fetch_assoc()) {
           $title = $row['auctionTitle'];
           $description = $row['description'];
-          $current_price = $row['startingPrice'];
-          $num_bids = 0;
+          $current_price = $row['highestBid'] ?? $row['startingPrice'];
+          $num_bids = $row['bidCount'];
           $end_date = new DateTime($row['endDate']);
           $item_id = $row['itemID'];
           $image = $row['image'];
@@ -136,28 +192,8 @@
   // Free result set and close the connection
   $result->free();
   $conn->close();
+  //----------------------------------------------
 
-  /*
-  // Demonstration of what listings will look like using dummy data.
-  $item_id = "87021";
-  $title = "Dummy title";
-  $description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum eget rutrum ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus feugiat, ipsum vel egestas elementum, sem mi vestibulum eros, et facilisis dui nisi eget metus. In non elit felis. Ut lacus sem, pulvinar ultricies pretium sed, viverra ac sapien. Vivamus condimentum aliquam rutrum. Phasellus iaculis faucibus pellentesque. Sed sem urna, maximus vitae cursus id, malesuada nec lectus. Vestibulum scelerisque vulputate elit ut laoreet. Praesent vitae orci sed metus varius posuere sagittis non mi.";
-  $current_price = 30;
-  $num_bids = 1;
-  $end_date = new DateTime('2020-09-16T11:00:00');
-  
-  // This uses a function defined in utilities.php
-  print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
-  
-  $item_id = "516";
-  $title = "Different title";
-  $description = "Very short description.";
-  $current_price = 13.50;
-  $num_bids = 3;
-  $end_date = new DateTime('2020-11-02T00:00:00');
-  
-  print_listing_li($item_id, $title, $description, $current_price, $num_bids, $end_date);
-  */
 ?>
 
 </ul>
