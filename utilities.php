@@ -53,8 +53,20 @@ function print_listing_li($item_id, $title, $image, $desc, $price, $num_bids, $e
   }
   
   // Encode the image data to Base64 if it’s not already a URL
-  $image_src = 'data:image/jpeg;base64,' . base64_encode($image);
-  
+  //$image_src = 'data:image/jpeg;base64,' . base64_encode($image);
+  // Ensure the variable is not null or empty before calling base64_encode
+  // Initialize the image source
+  $image_src = ''; // Initialize it in case we don't have an image
+
+  // Check if image data exists and encode it, otherwise use a placeholder
+  if (isset($image_data) && !empty($image_data)) {
+      // If there's image data, encode it
+      $encoded_image = base64_encode($image_data);
+      $image_src = 'data:image/jpeg;base64,' . $encoded_image; // Assuming it's a jpeg image
+  } else {
+      // If no image data, use a placeholder image
+      $image_src = 'path/to/placeholder-image.jpg'; // Replace with the path to your default image
+  }
   
   // Print HTML
   echo('
