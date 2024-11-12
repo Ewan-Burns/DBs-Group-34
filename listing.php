@@ -17,23 +17,46 @@ $end_time = new DateTime('2020-11-02T00:00:00');
 
 // Query the database for the item’s details
 if (isset($item_id)) {
-    $stmt = $conn->prepare("SELECT auctionTitle, description, startingPrice, endDate FROM items WHERE itemID = ?");
-    $stmt->bind_param("i", $item_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+
+  // Fetch items along with the highest current bid, ordered by endDate, with pagination
+  $query = "
+    SELECT 
+        Items.auctionTitle, 
+        Items.description, 
+        Items.startingPrice, 
+        Items.endDate, 
+        Items.image,
+        COALESCE(MAX(Bids.amount), Items.startingPrice) AS highestBid
+    FROM 
+        Items
+    LEFT JOIN 
+        Bids ON Items.itemID = Bids.itemID
+    WHERE 
+        Items.itemID = $item_id
+    GROUP BY 
+        Items.itemID, 
+        Items.auctionTitle, 
+        Items.description, 
+        Items.startingPrice, 
+        Items.endDate";
+
+
+  // Execute the query
+  $result = $conn->query($query);
     
     // Check if the item was found
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $title = $row['auctionTitle'];
         $description = $row['description'];
-        $current_price = $row['startingPrice'];
+        $current_price = $row['highestBid'] ?? $row['startingPrice'];
         $end_time = new DateTime($row['endDate']);
+        $image = $row['image'];
     }
     
     // Free result and close the statement
     $result->free();
-    $stmt->close();
+    $conn->close();
 }
 
 // Calculate time to auction end
@@ -82,6 +105,11 @@ $watching = false;
 
     <div class="itemDescription">
     <?php echo($description); ?>
+    </div>
+
+    <!--Show the image-->
+    <div class="itemImage">
+    <?php echo('<img src="data:image/jpeg;base64,' . base64_encode($image) . '" alt="' . htmlspecialchars($title) . '" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">'); ?>
     </div>
 
   </div>
