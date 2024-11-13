@@ -65,7 +65,7 @@ function print_listing_li($item_id, $title, $image, $desc, $price, $num_bids, $e
       $image_src = 'data:image/jpeg;base64,' . $encoded_image; // Assuming it's a jpeg image
   } else {
       // If no image data, use a placeholder image
-      $image_src = 'path/to/placeholder-image.jpg'; // Replace with the path to your default image
+      $image_src = 'images/imageplaceholder.jpg'; // Replace with the path to your default image
   }
   
   // Print HTML
