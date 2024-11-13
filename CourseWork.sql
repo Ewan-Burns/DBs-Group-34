@@ -159,26 +159,6 @@ CREATE TABLE `Items` (
   PRIMARY KEY (`itemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---Dumping data for table `Items`
-
-INSERT INTO `Items` (`itemID`, `userID`, `auctionTitle`, `carTypeID`, `image`, `startingPrice`, `reservePrice`, `endDate`, `status`, `description`) VALUES
-(1, NULL, 'Toyota Corolla', 1, NULL, 5000, 7000, '2024-11-30 18:00:00', 'Auction Open', 'Reliable compact car with excellent fuel efficiency'),
-(2, NULL, 'Honda Civic', 1, NULL, 5500, 8000, '2024-12-01 12:00:00', 'Auction Open', 'Popular sedan known for its longevity and low maintenance costs'),
-(3, NULL, 'Ford Mustang', 2, NULL, 15000, 20000, '2024-12-03 15:00:00', 'Auction Open', 'Classic American muscle car with a powerful V8 engine'),
-(4, NULL, 'Chevrolet Camaro', 2, NULL, 14000, 19000, '2024-12-05 14:30:00', 'Auction Open', 'Sporty coupe with a strong performance and sleek design'),
-(5, NULL, 'BMW 3 Series', 3, NULL, 12000, 15000, '2024-12-07 16:00:00', 'Auction Open', 'Luxury sedan with advanced features and impressive handling'),
-(6, NULL, 'Mercedes-Benz C-Class', 3, NULL, 13000, 17000, '2024-12-09 19:00:00', 'Auction Open', 'Elegant luxury car with premium interior and smooth ride'),
-(7, NULL, 'Volkswagen Golf', 1, NULL, 6000, 8000, '2024-12-11 11:00:00', 'Auction Open', 'Compact hatchback with a comfortable interior and efficient performance'),
-(8, NULL, 'Tesla Model 3', 4, NULL, 30000, 35000, '2024-12-13 13:30:00', 'Auction Open', 'Electric car with impressive range and cutting-edge technology'),
-(9, NULL, 'Audi A4', 3, NULL, 11000, 14000, '2024-12-15 10:00:00', 'Auction Open', 'Premium sedan with a refined interior and advanced features'),
-(10, NULL, 'Nissan Altima', 1, NULL, 7000, 9000, '2024-12-17 17:00:00', 'Auction Open', 'Midsize sedan with excellent fuel efficiency and reliability'),
-(11, NULL, 'Subaru Outback', 5, NULL, 8000, 10000, '2024-12-19 14:00:00', 'Auction Open', 'Versatile crossover with all-wheel drive and ample cargo space'),
-(12, NULL, 'Jeep Wrangler', 5, NULL, 16000, 21000, '2024-12-21 15:00:00', 'Auction Open', 'Off-road capable SUV with a rugged design and powerful engine'),
-(13, NULL, 'Mazda CX-5', 5, NULL, 9000, 11000, '2024-12-23 18:00:00', 'Auction Open', 'Compact SUV with a sporty feel and upscale interior'),
-(14, NULL, 'Hyundai Elantra', 1, NULL, 5500, 7500, '2024-12-25 11:30:00', 'Auction Open', 'Affordable sedan with a comfortable ride and good fuel economy'),
-(15, NULL, 'Porsche 911', 2, NULL, 50000, 60000, '2024-12-27 20:00:00', 'Auction Open', 'High-performance sports car with exceptional handling and power');
-
-
 -- Table structure for table `Make`
 --
 
@@ -281,10 +261,4 @@ ALTER TABLE `Bids`
 --
 
 ALTER TABLE `Buyers`
-  ADD UNIQUE KEY `userID` (`userID`) USING BTREE;
-
---
--- Indexes for table `CarTypes`
---
-
-ALTER TABLE `CarTypes`
+  ADD UNIQUE KEY `userID` (`userID`) USING BTREE
