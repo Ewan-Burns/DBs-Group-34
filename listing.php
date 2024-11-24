@@ -28,35 +28,34 @@ $user_id = 1; // Hardcoded user ID for now
 if (isset($item_id)) {
 
   // Fetch items along with the highest current bid, ordered by endDate, with pagination
-  $query = "
-    SELECT 
-        Items.auctionTitle, 
-        Items.description, 
-        Items.startingPrice, 
-        Items.reservePrice,
-        Items.endDate, 
-        Items.image,
-        Items.userID,
-        COALESCE(MAX(Bids.amount), Items.startingPrice) AS highestBid,
-        CarTypes.make, 
-        CarTypes.bodyType, 
-        CarTypes.colour, 
-        CarTypes.year,
-        CarTypes.mileage
-    FROM 
-        Items
-    LEFT JOIN 
-        Bids ON Items.itemID = Bids.itemID
-    LEFT JOIN
-        CarTypes ON Items.carTypeID = CarTypes.carTypeID
-    WHERE 
-        Items.itemID = $item_id
-    GROUP BY 
-        Items.itemID, 
-        Items.auctionTitle, 
-        Items.description, 
-        Items.startingPrice, 
-        Items.endDate";
+  $query = "SELECT 
+                Items.auctionTitle, 
+                Items.description, 
+                Items.startingPrice, 
+                Items.reservePrice,
+                Items.endDate, 
+                Items.image,
+                Items.userID,
+                COALESCE(MAX(Bids.amount), Items.startingPrice) AS highestBid,
+                CarTypes.make, 
+                CarTypes.bodyType, 
+                CarTypes.colour, 
+                CarTypes.year,
+                CarTypes.mileage
+            FROM 
+                Items
+            LEFT JOIN 
+                Bids ON Items.itemID = Bids.itemID
+            LEFT JOIN
+                CarTypes ON Items.carTypeID = CarTypes.carTypeID
+            WHERE 
+                Items.itemID = $item_id
+            GROUP BY 
+                Items.itemID, 
+                Items.auctionTitle, 
+                Items.description, 
+                Items.startingPrice, 
+                Items.endDate";
 
 
   // Execute the query
@@ -103,6 +102,19 @@ if (isset($item_id)) {
 
     $stmt_bid->close();
     $stmt->close();
+
+    // Showcase seller's average rating
+    $query = "SELECT AVG(rating) AS average_rating FROM Ratings 
+    WHERE Ratings.userID = ?";
+    $stmt_rat = $conn->prepare($query);
+    $stmt_rat->bind_param("i", $user_id);  // The seller's itemID (userID who created the auction)
+    $stmt_rat->execute();
+    $result = $stmt_rat->get_result();
+    $row = $result->fetch_assoc();
+
+    $average_rating = $row['average_rating'] ?? 'N/A';  // Default to 'N/A' if no ratings exist
+    // echo "Average Rating: " . (is_numeric($average_rating) ? number_format($average_rating, 1) : $average_rating);
+
         
     $conn->close();
 }
@@ -221,7 +233,9 @@ $has_session = true;
         <button type="submit" class="btn btn-primary form-control">Place bid</button>
       </form>
     <?php endif; ?>
-    
+    <div class="my-3">
+      The seller's rating is: <?php echo number_format($average_rating, 2); ?> / 5</p>
+    </di>
 <?php endif ?>
 
   
