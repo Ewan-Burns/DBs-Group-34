@@ -10,107 +10,104 @@
     $ordering = $_GET['order_by'];
   }
 ?>
-<div class="container mt-3">
+<div class="container-fluid mt-3">
+  <h2 class="my-3 text-left">Browse Listings</h2>
 
-<h2 class="my-3">Browse listings</h2>
-
-<div id="searchSpecs">
-<!-- When this form is submitted, this PHP page is what processes it.
-     Search/sort specs are passed to this page through parameters in the URL
-     (GET method of passing data to a page). -->
-<form method="get" action="browse.php">
-  <div class="row">
-    <div class="col-md-5 pr-0">
-      <div class="form-group">
-        <label for="keyword" class="sr-only">Search keyword:</label>
-	    <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text bg-transparent pr-0 text-muted">
-              <i class="fa fa-search"></i>
-            </span>
+  <div id="searchSpecs" class="p-3 bg-light rounded">
+    <!-- Search and filter form -->
+    <form method="get" action="browse.php">
+      <div class="row align-items-center">
+        <!-- Keyword search -->
+        <div class="col-md-5">
+          <div class="form-group mb-0">
+            <label for="keyword" class="sr-only">Search keyword:</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text bg-transparent text-muted">
+                  <i class="fa fa-search"></i>
+                </span>
+              </div>
+              <input type="text" class="form-control border-left-0" id="keyword" name="keyword" placeholder="Search for anything">
+            </div>
           </div>
-          <input type="text" class="form-control border-left-0" id="keyword" name="keyword" placeholder="Search for anything">
+        </div>
+
+        <!-- Sort filter -->
+        <div class="col-md-5">
+          <div class="form-group d-flex align-items-center mb-0">
+            <label for="order_by" class="mr-3 mb-0">Sorting:</label>
+            <select class="form-control flex-grow-1" id="order_by" name="order_by">
+              <option value="date" <?php echo ($ordering == 'date') ? 'selected' : ''; ?>>Soonest expiry</option>
+              <option value="pricelow" <?php echo ($ordering == 'pricelow') ? 'selected' : ''; ?>>Price (low to high)</option>
+              <option value="pricehigh" <?php echo ($ordering == 'pricehigh') ? 'selected' : ''; ?>>Price (high to low)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="col-md-2 text-right">
+          <button type="submit" class="btn btn-primary btn-block">Search</button>
         </div>
       </div>
-    </div>
-    <!-- Sort filter -->
-    <div class="col-md-3">
-      <div class="form-inline">
-        <label for="order_by" class="mr-2">Sort by:</label>
-        <select class="form-control" id="order_by" name="order_by">
-          <option value="date" <?php echo ($ordering == 'date') ? 'selected' : ''; ?>>Soonest expiry</option>
-          <option value="pricelow" <?php echo ($ordering == 'pricelow') ? 'selected' : ''; ?>>Price (low to high)</option>
-          <option value="pricehigh" <?php echo ($ordering == 'pricehigh') ? 'selected' : ''; ?>>Price (high to low)</option>
-        </select>
+
+      <!-- Filters row -->
+      <div class="row mt-3">
+        <!-- Make filter -->
+        <div class="col-md-4">
+          <div class="form-group mb-0">
+            <select class="form-control" id="make" name="make">
+              <option value="">All makes</option>
+              <?php
+              $makes_query = "SELECT * FROM Make";
+              $makes_result = $conn->query($makes_query);
+              while ($make_row = $makes_result->fetch_assoc()) {
+                $makeID = htmlspecialchars($make_row['makeID']);
+                $selected = (isset($_GET['make']) && $_GET['make'] == $makeID) ? 'selected' : '';
+                echo "<option value=\"$makeID\" $selected>$makeID</option>";
+              }
+              ?>
+            </select>
+          </div>
+        </div>
+
+        <!-- Colour filter -->
+        <div class="col-md-4">
+          <div class="form-group mb-0">
+            <select class="form-control" id="colour" name="colour">
+              <option value="">All colours</option>
+              <?php
+              $colours_query = "SELECT * FROM Colour";
+              $colours_result = $conn->query($colours_query);
+              while ($colour_row = $colours_result->fetch_assoc()) {
+                $colourID = htmlspecialchars($colour_row['colourID']);
+                $selected = (isset($_GET['colour']) && $_GET['colour'] == $colourID) ? 'selected' : '';
+                echo "<option value=\"$colourID\" $selected>$colourID</option>";
+              }
+              ?>
+            </select>
+          </div>
+        </div>
+
+        <!-- Body Type filter -->
+        <div class="col-md-4">
+          <div class="form-group mb-0">
+            <select class="form-control" id="bodyType" name="bodyType">
+              <option value="">All body types</option>
+              <?php
+              $body_types_query = "SELECT * FROM BodyType";
+              $body_types_result = $conn->query($body_types_query);
+              while ($body_row = $body_types_result->fetch_assoc()) {
+                $bodyID = htmlspecialchars($body_row['bodyID']);
+                $selected = (isset($_GET['bodyType']) && $_GET['bodyType'] == $bodyID) ? 'selected' : '';
+                echo "<option value=\"$bodyID\" $selected>$bodyID</option>";
+              }
+              ?>
+            </select>
+          </div>
+        </div>
       </div>
-    </div>
-    <!-- Submit button -->
-    <div class="col-md-1 px-0">
-      <button type="submit" class="btn btn-primary">Search</button>
-    </div>
+    </form>
   </div>
-
-
-  <div class="row mt-3">
-    <!-- Make filter -->
-    <div class="col-md-3">
-      <div class="form-group">
-        <select class="form-control" id="make" name="make">
-          <option value="">All makes</option>
-          <?php
-          // Fetch all makes from the Make table
-          $makes_query = "SELECT * FROM Make";
-          $makes_result = $conn->query($makes_query);
-          while ($make_row = $makes_result->fetch_assoc()) {
-            $makeID = htmlspecialchars($make_row['makeID']);
-            $selected = (isset($_GET['make']) && $_GET['make'] == $makeID) ? 'selected' : '';
-            echo "<option value=\"$makeID\" $selected>$makeID</option>";
-          }
-          ?>
-        </select>
-      </div>
-    </div>
-    <!-- Colour filter -->
-    <div class="col-md-3">
-      <div class="form-group">
-        <select class="form-control" id="colour" name="colour">
-          <option value="">All colours</option>
-          <?php
-          // Fetch all colours from the Colour table
-          $colours_query = "SELECT * FROM Colour";
-          $colours_result = $conn->query($colours_query);
-          while ($colour_row = $colours_result->fetch_assoc()) {
-            $colourID = htmlspecialchars($colour_row['colourID']);
-            $selected = (isset($_GET['colour']) && $_GET['colour'] == $colourID) ? 'selected' : '';
-            echo "<option value=\"$colourID\" $selected>$colourID</option>";
-          }
-          ?>
-        </select>
-      </div>
-    </div>
-    <!-- Body Type filter -->
-    <div class="col-md-3">
-      <div class="form-group">
-        <select class="form-control" id="bodyType" name="bodyType">
-          <option value="">All body types</option>
-          <?php
-          // Fetch all body types from the BodyType table
-          $body_types_query = "SELECT * FROM BodyType";
-          $body_types_result = $conn->query($body_types_query);
-          while ($body_row = $body_types_result->fetch_assoc()) {
-            $bodyID = htmlspecialchars($body_row['bodyID']);  // Using 'bodyID' column name
-            $selected = (isset($_GET['bodyType']) && $_GET['bodyType'] == $bodyID) ? 'selected' : '';
-            echo "<option value=\"$bodyID\" $selected>$bodyID</option>";
-          }
-          ?>
-        </select>
-      </div>
-    </div>
-  </div>
-</form>
-</div> <!-- end search specs bar -->
-
-
 </div>
 
 <?php
@@ -192,11 +189,11 @@
   }
 ?>
 
-<div class="container mt-5">
+<div class="container-fluid mt-5">
 
 <!-- TODO: If result set is empty, print an informative message. Otherwise... -->
 
-<ul class="list-group">
+<ul class="row">
 
     <!-- TODO: Use a while loop to print a list item for each auction listing
      retrieved from the query -->

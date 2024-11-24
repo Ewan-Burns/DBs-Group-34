@@ -89,9 +89,11 @@ function print_listing_li($item_id, $title, $image, $desc, $price, $num_bids, $e
                 ? '<span style="display: inline-block; font-size: 0.8em; color: #008000; background-color: #e6ffe6; padding: 3px 6px; border-radius: 4px;">On Watchlist</span>' 
                 : '') . '
             ' . ($now > $end_time 
-                ? ($bid_placed >= $price 
+                ? (!empty($bid_placed) && $bid_placed >= $price 
                     ? '<span style="display: inline-block; font-size: 0.8em; color: #008000; background-color: #e6ffe6; padding: 3px 6px; border-radius: 4px;">You have won the auction</span>' 
-                    : '<span style="display: inline-block; font-size: 0.8em; color: #ff0000; background-color: #ffe6e6; padding: 3px 6px; border-radius: 4px;">You have lost the auction</span>'
+                    : (!empty($bid_placed) 
+                        ? '<span style="display: inline-block; font-size: 0.8em; color: #ff0000; background-color: #ffe6e6; padding: 3px 6px; border-radius: 4px;">You have lost the auction</span>'
+                        : '')
                   )
                 : (!empty($bid_placed) 
                     ? ($bid_placed >= $price 

@@ -2,7 +2,7 @@
 <?php require("utilities.php")?>
 <?php require_once("database_connect.php");?> 
 
-<div class="container">
+<div class="container-fluid">
 
 <h2 class="my-3">Recommendations for you</h2>
 
@@ -82,7 +82,8 @@
                         i.image,
                         i.description,
                         i.startingPrice,
-                        MAX(b.amount) as highestBid
+                        MAX(b.amount) as highestBid,
+                        COUNT(b.amount) AS bidCount
                     FROM Items i
                     LEFT JOIN Bids b ON i.itemID = b.itemID
                     WHERE i.itemID IN ($recommended_items_str)
@@ -100,16 +101,17 @@
                 
                 echo '<h3>Based on your bids:</h3>';
                 if ($recommendations_result && mysqli_num_rows($recommendations_result) > 0) {
-                    echo '<ul class="list-group">';
                     while ($row = mysqli_fetch_assoc($recommendations_result)) {
                         $title = $row['auctionTitle'];
                         $description = $row['description'];
                         $current_price = $row['highestBid'] ?? $row['startingPrice'];
                         $item_id = $row['itemID'];
                         $image = $row['image'];
+                        $num_bids = $row['bidCount'];
+
                         
                         print_listing_li($item_id, $title, $image, $description, 
-                                       $current_price, $row['highestBid'], new DateTime());
+                                       $current_price, $num_bids, new DateTime(), $user_id);
                     }
                     echo '</ul>';
                 } else {
@@ -177,7 +179,8 @@
                     i.image,
                     i.description,
                     i.startingPrice,
-                    MAX(b.amount) as highestBid
+                    MAX(b.amount) as highestBid,
+                    COUNT(b.amount) AS bidCount
                 FROM Items i
                 LEFT JOIN Bids b ON i.itemID = b.itemID
                 WHERE i.carTypeID IN ($carTypes_str)
@@ -195,14 +198,15 @@
             
             echo '<h3>Based on your watchlist:</h3>';
             if ($recommendations_result && mysqli_num_rows($recommendations_result) > 0) {
-                echo '<ul class="list-group">';
                 while ($row = mysqli_fetch_assoc($recommendations_result)) {
                     $title = $row['auctionTitle'];
                     $description = $row['description'];
                     $current_price = $row['highestBid'] ?? $row['startingPrice'];
                     $item_id = $row['itemID'];
                     $image = $row['image'];
-                    print_listing_li($item_id, $title, $image, $description, $current_price, $row['highestBid'], new DateTime());
+                    $num_bids = $row['bidCount'];
+
+                    print_listing_li($item_id, $title, $image, $description, $current_price, $num_bids, new DateTime(), $user_id);
                 }
                 echo '</ul>';
             } else {
