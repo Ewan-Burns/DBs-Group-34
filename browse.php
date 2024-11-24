@@ -177,10 +177,10 @@
   $order_sql = '';
   switch ($ordering) {
       case 'pricelow':
-          $order_sql = 'ORDER BY COALESCE(MIN(Bids.amount), Items.startingPrice) ASC';  // Ascending order of price (low to high)
+          $order_sql = 'ORDER BY COALESCE(MAX(Bids.amount), Items.startingPrice) ASC';  // Ascending order of price (low to high)
           break;
       case 'pricehigh':
-          $order_sql = 'ORDER BY COALESCE(MIN(Bids.amount), Items.startingPrice) DESC';  // Descending order of price (high to low)
+          $order_sql = 'ORDER BY COALESCE(MAX(Bids.amount), Items.startingPrice) DESC';  // Descending order of price (high to low)
           break;
       case 'date':
       default:
@@ -212,8 +212,7 @@
   $items_per_page = 10;
 
   //Count the total number of items to calculate the number of pages
-  $count_query = "
-    SELECT COUNT(*) AS total 
+  $count_query = "SELECT COUNT(*) AS total 
     FROM Items 
     WHERE Items.userID != $user_id";
   $count_result = $conn->query($count_query);
@@ -230,8 +229,7 @@
 
   //--------------Querying the items:-------------
   // Fetch items along with the highest current bid, ordered by endDate, with pagination
-  $query = "
-    SELECT 
+  $query = "SELECT 
       Items.itemID,
       Items.auctionTitle,
       Items.image,
