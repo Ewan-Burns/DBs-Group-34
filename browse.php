@@ -1,6 +1,15 @@
 <?php include_once("header.php")?>
 <?php require("utilities.php")?>
+<?php require_once("database_connect.php");?> 
 
+<?php if (!isset($_GET['order_by'])) {
+    // TODO: Define behavior if an order_by value has not been specified.
+    $ordering = 'date';
+  }
+  else {
+    $ordering = $_GET['order_by'];
+  }
+?>
 <div class="container mt-3">
 
 <h2 class="my-3">Browse listings</h2>
@@ -20,33 +29,82 @@
               <i class="fa fa-search"></i>
             </span>
           </div>
-          <input type="text" class="form-control border-left-0" id="keyword" placeholder="Search for anything">
+          <input type="text" class="form-control border-left-0" id="keyword" name="keyword" placeholder="Search for anything">
         </div>
       </div>
     </div>
-    <div class="col-md-3 pr-0">
-      <div class="form-group">
-        <label for="cat" class="sr-only">Search within:</label>
-        <select class="form-control" id="cat">
-          <option selected value="all">All categories</option>
-          <option value="fill">Fill me in</option>
-          <option value="with">with options</option>
-          <option value="populated">populated from a database?</option>
-        </select>
-      </div>
-    </div>
-    <div class="col-md-3 pr-0">
+    <!-- Sort filter -->
+    <div class="col-md-3">
       <div class="form-inline">
-        <label class="mx-2" for="order_by">Sort by:</label>
-        <select class="form-control" id="order_by">
-          <option value="date">Soonest expiry</option>
-          <option selected value="pricelow">Price (low to high)</option>
-          <option value="pricehigh">Price (high to low)</option>
+        <label for="order_by" class="mr-2">Sort by:</label>
+        <select class="form-control" id="order_by" name="order_by">
+          <option value="date" <?php echo ($ordering == 'date') ? 'selected' : ''; ?>>Soonest expiry</option>
+          <option value="pricelow" <?php echo ($ordering == 'pricelow') ? 'selected' : ''; ?>>Price (low to high)</option>
+          <option value="pricehigh" <?php echo ($ordering == 'pricehigh') ? 'selected' : ''; ?>>Price (high to low)</option>
         </select>
       </div>
     </div>
+    <!-- Submit button -->
     <div class="col-md-1 px-0">
       <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </div>
+
+
+  <div class="row mt-3">
+    <!-- Make filter -->
+    <div class="col-md-3">
+      <div class="form-group">
+        <select class="form-control" id="make" name="make">
+          <option value="">All makes</option>
+          <?php
+          // Fetch all makes from the Make table
+          $makes_query = "SELECT * FROM Make";
+          $makes_result = $conn->query($makes_query);
+          while ($make_row = $makes_result->fetch_assoc()) {
+            $makeID = htmlspecialchars($make_row['makeID']);
+            $selected = (isset($_GET['make']) && $_GET['make'] == $makeID) ? 'selected' : '';
+            echo "<option value=\"$makeID\" $selected>$makeID</option>";
+          }
+          ?>
+        </select>
+      </div>
+    </div>
+    <!-- Colour filter -->
+    <div class="col-md-3">
+      <div class="form-group">
+        <select class="form-control" id="colour" name="colour">
+          <option value="">All colours</option>
+          <?php
+          // Fetch all colours from the Colour table
+          $colours_query = "SELECT * FROM Colour";
+          $colours_result = $conn->query($colours_query);
+          while ($colour_row = $colours_result->fetch_assoc()) {
+            $colourID = htmlspecialchars($colour_row['colourID']);
+            $selected = (isset($_GET['colour']) && $_GET['colour'] == $colourID) ? 'selected' : '';
+            echo "<option value=\"$colourID\" $selected>$colourID</option>";
+          }
+          ?>
+        </select>
+      </div>
+    </div>
+    <!-- Body Type filter -->
+    <div class="col-md-3">
+      <div class="form-group">
+        <select class="form-control" id="bodyType" name="bodyType">
+          <option value="">All body types</option>
+          <?php
+          // Fetch all body types from the BodyType table
+          $body_types_query = "SELECT * FROM BodyType";
+          $body_types_result = $conn->query($body_types_query);
+          while ($body_row = $body_types_result->fetch_assoc()) {
+            $bodyID = htmlspecialchars($body_row['bodyID']);  // Using 'bodyID' column name
+            $selected = (isset($_GET['bodyType']) && $_GET['bodyType'] == $bodyID) ? 'selected' : '';
+            echo "<option value=\"$bodyID\" $selected>$bodyID</option>";
+          }
+          ?>
+        </select>
+      </div>
     </div>
   </div>
 </form>
@@ -56,9 +114,12 @@
 </div>
 
 <?php
+ // Include the database connection
+ require_once 'database_connect.php';
   // Retrieve these from the URL
   if (!isset($_GET['keyword'])) {
-    // TODO: Define behavior if a keyword has not been specified.
+    // TODO: Define behavior if a keyword has not been specified. Then it shouldn't filter for anything
+    $keyword = "";
   }
   else {
     $keyword = $_GET['keyword'];
@@ -66,16 +127,10 @@
 
   if (!isset($_GET['cat'])) {
     // TODO: Define behavior if a category has not been specified.
+    $category = "all";
   }
   else {
     $category = $_GET['cat'];
-  }
-  
-  if (!isset($_GET['order_by'])) {
-    // TODO: Define behavior if an order_by value has not been specified.
-  }
-  else {
-    $ordering = $_GET['order_by'];
   }
   
   if (!isset($_GET['page'])) {
@@ -84,16 +139,57 @@
   else {
     $curr_page = $_GET['page'];
   }
-
+  // Retrieve the user-selected filters
+  $makeID = isset($_GET['make']) ? $_GET['make'] : "";
+  $colourID = isset($_GET['colour']) ? $_GET['colour'] : "";
+  $bodyTypeID = isset($_GET['bodyType']) ? $_GET['bodyType'] : "";
   /* TODO: Use above values to construct a query. Use this query to 
      retrieve data from the database. (If there is no form data entered,
      decide on appropriate default value/default query to make. */
-  
-  /* For the purposes of pagination, it would also be helpful to know the
-     total number of results that satisfy the above query */
-  $num_results = 96; // TODO: Calculate me for real
-  $results_per_page = 10;
-  $max_page = ceil($num_results / $results_per_page);
+  // Build the WHERE clause based on search criteria
+  $where_clause = [];
+  if (!empty($keyword)) {
+    $keyword = mysqli_real_escape_string($conn, $keyword); // sanitize input to prevent SQL injection
+    $where_clause[] = "(Items.auctionTitle LIKE '%$keyword%' OR Items.description LIKE '%$keyword%')";
+  } 
+  // Join with CarTypes and filter based on make, colour, and bodyType
+  if (!empty($makeID)) {
+    $where_clause[] = "CarTypes.make = '$makeID'";
+  }
+
+  if (!empty($colourID)) {
+    $where_clause[] = "CarTypes.colour = '$colourID'";
+  }
+
+  if (!empty($bodyTypeID)) {
+    $where_clause[] = "CarTypes.bodyType = '$bodyTypeID'";
+  }
+
+  // Exclude items created by the user
+  if (!empty($user_id)) {
+    $user_id = mysqli_real_escape_string($conn, $user_id); // sanitize input
+    $where_clause[] = "Items.userID != '$user_id'";
+  }
+
+  // Combine the WHERE clauses (if any)
+  $where_sql = '';
+  if (!empty($where_clause)) {
+    $where_sql = 'WHERE ' . implode(' AND ', $where_clause);
+  }
+  // Build the ORDER BY clause based on the selected option
+  $order_sql = '';
+  switch ($ordering) {
+      case 'pricelow':
+          $order_sql = 'ORDER BY COALESCE(MIN(Bids.amount), Items.startingPrice) ASC';  // Ascending order of price (low to high)
+          break;
+      case 'pricehigh':
+          $order_sql = 'ORDER BY COALESCE(MIN(Bids.amount), Items.startingPrice) DESC';  // Descending order of price (high to low)
+          break;
+      case 'date':
+      default:
+          $order_sql = 'ORDER BY Items.endDate ASC';  // Default ordering by end date (soonest expiry)
+          break;
+  }
 ?>
 
 <div class="container mt-5">
@@ -102,7 +198,7 @@
 
 <ul class="list-group">
 
-<!-- TODO: Use a while loop to print a list item for each auction listing
+    <!-- TODO: Use a while loop to print a list item for each auction listing
      retrieved from the query -->
 
 
@@ -114,15 +210,15 @@
 
 
   //------------Preparing pagination:--------------
-
-  // Number of items per page
+  $user_id = 1;
+  // Number of items to display per page
   $items_per_page = 10;
 
   //Count the total number of items to calculate the number of pages
   $count_query = "
-  SELECT COUNT(*) AS total 
-  FROM Items 
-  LEFT JOIN Bids ON Items.itemID = Bids.itemID";
+    SELECT COUNT(*) AS total 
+    FROM Items 
+    WHERE Items.userID != $user_id";
   $count_result = $conn->query($count_query);
   $total_items = $count_result->fetch_assoc()['total'];
 
@@ -134,9 +230,6 @@
 
   // Calculate the offset based on the page number
   $offset = ($curr_page - 1) * $items_per_page;
-
-  //----------------------------------------------
-
 
   //--------------Querying the items:-------------
   // Fetch items along with the highest current bid, ordered by endDate, with pagination
@@ -154,6 +247,9 @@
       Items
     LEFT JOIN 
       Bids ON Items.itemID = Bids.itemID
+    LEFT JOIN 
+      CarTypes ON Items.carTypeID = CarTypes.carTypeID
+    $where_sql
     GROUP BY 
       Items.itemID, 
       Items.auctionTitle, 
@@ -161,32 +257,33 @@
       Items.description, 
       Items.startingPrice, 
       Items.endDate
-    ORDER BY 
-      Items.endDate ASC
+    $order_sql
     LIMIT $items_per_page OFFSET $offset";
 
   // Execute the query
   $result = $conn->query($query);
 
+  $user_id = 1; // Hardcoded user ID for now
 
+  // Display query results
   // Check if the query was successful
   if ($result && $result->num_rows > 0) {
-    
-      // Loop through each item and display it
-      while ($row = $result->fetch_assoc()) {
-          $title = $row['auctionTitle'];
-          $description = $row['description'];
-          $current_price = $row['highestBid'] ?? $row['startingPrice'];
-          $num_bids = $row['bidCount'];
-          $end_date = new DateTime($row['endDate']);
-          $item_id = $row['itemID'];
-          $image = $row['image'];
+        
+    // Loop through each item and display it
+    while ($row = $result->fetch_assoc()) {
+      $title = $row['auctionTitle'];
+      $description = $row['description'];
+      $current_price = $row['highestBid'] ?? $row['startingPrice'];
+      $num_bids = $row['bidCount'];
+      $end_date = new DateTime($row['endDate']);
+      $item_id = $row['itemID'];
+      $image = $row['image'];
 
-          // Use the existing function to display the item
-          print_listing_li($item_id, $title, $image, $description, $current_price, $num_bids, $end_date);
-      }
+      // Use the existing function to display the item
+      print_listing_li($item_id, $title, $image, $description, $current_price, $num_bids, $end_date, $user_id);
+    }
   } else {
-      echo "No items available.";
+          echo "No items available.";
   }
 
   // Free result set and close the connection
