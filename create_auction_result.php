@@ -128,7 +128,10 @@ if (!empty($errors)) {
     $carTypeExists = false;
     $carTypeID = null;
 
-    $sqlCheckCarType = "SELECT CarTypeID FROM CarTypes WHERE make='$make' AND bodyType='$bodyType' AND colour='$colour' AND year='$year'";
+    $sqlCheckCarType = "SELECT 
+        CarTypeID 
+        FROM CarTypes 
+        WHERE make='$make' AND bodyType='$bodyType' AND colour='$colour' AND year='$year'";
     $resultCheckCarType = $conn->query($sqlCheckCarType);
 
     //Create CarTypeID or copy pre-existing CarTypeID
@@ -137,7 +140,9 @@ if (!empty($errors)) {
         $carTypeID = $resultCheckCarType->fetch_assoc()['CarTypeID'];
     } else {
         // Insert new car type
-        $sqlInsertCarType = "INSERT INTO CarTypes (Make, BodyType, Colour, Year) VALUES ('$make', '$bodyType', '$colour', '$year')";
+        $sqlInsertCarType = "INSERT 
+            INTO CarTypes (Make, BodyType, Colour, Year) 
+            VALUES ('$make', '$bodyType', '$colour', '$year')";
         if ($conn->query($sqlInsertCarType) === TRUE) {
             $carTypeID = $conn->insert_id; // Get the last inserted CarTypeID
         } else {

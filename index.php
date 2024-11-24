@@ -8,18 +8,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta tags and title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vintage Car Auctions</title> <!-- Updated title -->
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <style>
-        /* Center the content vertically and horizontally */
+        /* Style for the image at the top */
+        .header-image {
+            width: 100%;
+            height: auto;
+            z-index: -1;
+            margin-bottom: 20px; /* Reduces space between the image and the content below */
+        }
+
+        /* Center the content below the image */
         .container {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
             text-align: center;
         }
 
@@ -56,14 +63,19 @@
 </head>
 <body>
 
+<!-- Image at the top -->
+<div class="text-center">
+    <img src="images/mustang.jpg" alt="Mustang" class="header-image">
+</div>
+
+<!-- Main content container -->
 <div class="container">
     <!-- Main title -->
-    <h1>Vintage Car Auctions</h1> <!-- Updated title displayed on the page -->
+    <h1>Vintage Car Auctions</h1> 
     
     <!-- Buttons for navigation -->
     <div>
-        <a href="browse.php" class="btn btn-custom">Find your dream car</a>
-        <a href="create_auction.php" class="btn btn-custom">Sell your vintage car</a>
+        <a href="browse.php" class="btn btn-custom">Sell your vintage car or find your next dream ride!</a>
     </div>
     
     <!-- Register link at the bottom -->
@@ -79,3 +91,4 @@
 
 </body>
 </html>
+<?php include_once("footer.php")?>

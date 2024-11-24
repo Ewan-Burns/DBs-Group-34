@@ -33,7 +33,7 @@
   
   <!-- Top Row: Brand and Login/Logout -->
   <div class="d-flex w-100 justify-content-between">
-    <a class="navbar-brand" href="#">Vintage Cars <!--CHANGEME!--></a>
+    <a class="navbar-brand" href="index.php">Vintage Cars </a>
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         <?php

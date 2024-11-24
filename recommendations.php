@@ -19,10 +19,12 @@
   // Section 1: Recommendations based on the user's bids
   if ($user_id) {
     // Get the items the user has bid on
-    $user_bids_query = "
-        SELECT DISTINCT itemID 
-        FROM Bids 
-        WHERE userID = $user_id";
+    $user_bids_query = "SELECT DISTINCT 
+                            itemID 
+                        FROM 
+                            Bids 
+                        WHERE 
+                            userID = $user_id";
     
     $user_bids_result = mysqli_query($conn, $user_bids_query);
     
@@ -37,11 +39,13 @@
         $user_bids_str = implode(',', $user_bids);
         
         // Find users who have bid on the same items
-        $other_users_query = "
-            SELECT DISTINCT b.userID
-            FROM Bids b
-            WHERE b.itemID IN ($user_bids_str)
-            AND b.userID != $user_id";  // Exclude the current user
+        $other_users_query = "SELECT DISTINCT 
+                                b.userID
+                                FROM 
+                                    Bids b
+                                WHERE 
+                                    b.itemID IN ($user_bids_str)
+                                    AND b.userID != $user_id";  // Exclude the current user
         
         $other_users_result = mysqli_query($conn, $other_users_query);
         
@@ -56,8 +60,7 @@
             $other_users_str = implode(',', $other_users);
             
             // Find other items these users have bid on
-            $other_user_bids_query = "
-                SELECT DISTINCT b.itemID
+            $other_user_bids_query = "SELECT DISTINCT b.itemID
                 FROM Bids b
                 WHERE b.userID IN ($other_users_str)
                 AND b.itemID NOT IN ($user_bids_str)";  // Exclude items the current user has already bid on
@@ -75,8 +78,7 @@
                 $recommended_items_str = implode(',', $recommended_items);
                 
                 // Get details for recommended items (ensure they are active)
-                $recommendations_query = "
-                    SELECT 
+                $recommendations_query = "SELECT 
                         i.itemID,
                         i.auctionTitle,
                         i.image,
@@ -136,8 +138,7 @@
     }
 
     // Section 2: Recommendations based on the user's watchlist
-    $watchlist_query = "
-        SELECT itemID 
+    $watchlist_query = "SELECT itemID 
         FROM Watchlist 
         WHERE userID = $user_id";
     
@@ -154,8 +155,7 @@
         $watchlist_items_str = implode(',', $watchlist_items);
         
         // Get carTypes from watchlist items
-        $carType_query = "
-            SELECT DISTINCT carTypeID 
+        $carType_query = "SELECT DISTINCT carTypeID 
             FROM Items 
             WHERE itemID IN ($watchlist_items_str)";
         
@@ -172,8 +172,7 @@
             $carTypes_str = implode(',', $carTypes);
             
             // Get recommendations based on watchlist
-            $recommendations_query = "
-                SELECT 
+            $recommendations_query = "SELECT 
                     i.itemID,
                     i.auctionTitle,
                     i.image,
