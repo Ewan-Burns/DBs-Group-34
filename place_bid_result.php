@@ -12,23 +12,27 @@ if (!$item_id) {
 }
 
 // Fetch item details and highest bid
-$query = "
-    SELECT 
-      Items.itemID,
-      Items.auctionTitle,
-      Items.image,
-      Items.description,
-      Items.startingPrice,
-      Items.endDate,
-      MAX(Bids.amount) AS highestBid
-    FROM 
-      Items
-    LEFT JOIN 
-      Bids ON Items.itemID = Bids.itemID
-    WHERE 
-      Items.itemID = ?
-    GROUP BY 
-      Items.itemID, Items.auctionTitle, Items.image, Items.description, Items.startingPrice, Items.endDate
+$query = "SELECT 
+            Items.itemID,
+            Items.auctionTitle,
+            Items.image,
+            Items.description,
+            Items.startingPrice,
+            Items.endDate,
+            MAX(Bids.amount) AS highestBid
+        FROM 
+            Items
+        LEFT JOIN 
+            Bids ON Items.itemID = Bids.itemID
+        WHERE 
+            Items.itemID = ?
+        GROUP BY 
+            Items.itemID, 
+            Items.auctionTitle, 
+            Items.image, 
+            Items.description, 
+            Items.startingPrice, 
+            Items.endDate
 ";
 
 $stmt = $conn->prepare($query);

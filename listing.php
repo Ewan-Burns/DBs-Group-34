@@ -100,14 +100,24 @@ if (isset($item_id)) {
     $stmt_bid->fetch(); // Fetch the maximum bid amount
     $stmt_bid->free_result();
 
+    // Get the userID of the user with the highest bid on this item
+    $highest_bid_query = "SELECT userID FROM Bids WHERE itemID = ? ORDER BY amount DESC LIMIT 1";
+    $stmt_highest_bid = $conn->prepare($highest_bid_query);
+    $stmt_highest_bid->bind_param("i", $item_id);
+    $stmt_highest_bid->execute();
+    $stmt_highest_bid->bind_result($highest_bid_user_id);
+    $stmt_highest_bid->fetch(); // Fetch the userID of the highest bid
+    $stmt_highest_bid->free_result();
+    
+
     $stmt_bid->close();
     $stmt->close();
 
     // Showcase seller's average rating
     $query = "SELECT AVG(rating) AS average_rating FROM Ratings 
-    WHERE Ratings.userID = ?";
+    WHERE userID = ?";
     $stmt_rat = $conn->prepare($query);
-    $stmt_rat->bind_param("i", $user_id);  // The seller's itemID (userID who created the auction)
+    $stmt_rat->bind_param("i", $item_user_id);  // The seller's itemID (userID who created the auction)
     $stmt_rat->execute();
     $result = $stmt_rat->get_result();
     $row = $result->fetch_assoc();
@@ -174,6 +184,46 @@ $has_session = true;
     </div>
   <?php endif ?>
 <?php endif /* Print nothing otherwise */ ?>
+
+<?php if ($now > $end_time && $highest_bid_user_id == $user_id): ?>
+    <!-- User won the auction -->
+    <!-- "Rate Seller" Button (show only if auction ended and user won) -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rateSellerModal">
+        Rate Seller
+    </button>
+
+    <!-- Modal Structure -->
+     
+    <div class="modal fade" id="rateSellerModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rateSellerModalLabel">Rate the Seller</h5>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form method="POST" action="ratings.php">
+                        <div class="form-group">
+                            <label for="rating" class="form-label">Rate the Seller:</label>
+                            <select name="rating" id="rating" class="form-select" required>
+                                <option value="" disabled selected>Select a rating</option>
+                                <option value="1">1 - Poor</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="3">3 - Good</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="5">5 - Excellent</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Rating</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
   </div>
 </div>
 

@@ -36,7 +36,7 @@
 
       //Count the total number of items to calculate the number of pages
       $count_query = "SELECT 
-                        COUNT(DISTINCT Items.itemID) AS total
+                        COUNT(Items.itemID) AS total
                       FROM 
                         Items
                       JOIN 

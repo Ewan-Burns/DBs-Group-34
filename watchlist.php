@@ -34,7 +34,6 @@
         // Number of items per page
         $items_per_page = 12;
 
-        //Count the total number of items to calculate the number of pages
         // Count the total number of items to calculate the number of pages for the watchlist
         $count_query = "SELECT 
                             COUNT(DISTINCT Items.itemID) AS total
@@ -60,9 +59,9 @@
         $offset = ($curr_page - 1) * $items_per_page;
 
         //----------------------------------------------
-        // TODO: Perform a query to pull up the auctions they've bidded on.
 
-        // Fetch items from the database
+
+        
         // Fetch items from the database for the watchlist page
         $query = "SELECT 
                     Items.itemID,
