@@ -4,6 +4,8 @@
 
 <?php
 
+$user_id = 1; // For testing purposes, you can set the user ID here
+
 // This function takes the form data and adds the new auction to the database.
 
 /* TODO #1: Connect to MySQL database (perhaps by requiring a file that
@@ -151,6 +153,7 @@ if (!empty($errors)) {
     // Insert query
     $sqlInsertItem = $conn->prepare(
         "INSERT INTO Items (
+            userID,
             auctionTitle, 
             description, 
             startingPrice, 
@@ -160,12 +163,12 @@ if (!empty($errors)) {
             status, 
             image
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
         )"
     );
     // Bind the parameters: s = string, d = double, i = integer, b = blob
     // The `b` type is specific for binary data
-    $sqlInsertItem->bind_param("ssddssis", $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $status, $image);                     
+    $sqlInsertItem->bind_param("ssddssis", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $status, $image);                     
 
     // Execute query and check for success
     if ($sqlInsertItem->execute()) {
