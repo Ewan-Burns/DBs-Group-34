@@ -5,7 +5,7 @@
   // database query.
   session_start();
   $_SESSION['logged_in'] = false;
-  $_SESSION['account_type'] = 'seller';
+  $_SESSION['account_type'] = 'buyer';
 ?>
 
 
@@ -39,7 +39,7 @@
         <?php
           // Displays either login or logout on the right, depending on user's session status.
           if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
-            echo '<a class="nav-link" href="logout.php">Logout</a>';
+            echo '<a class="nav-link " href="logout.php">Logout</a>';
           } else {
             echo '<button type="button" class="btn nav-link" data-toggle="modal" data-target="#loginModal">Login</button>';
           }
@@ -51,28 +51,30 @@
   <!-- Bottom Row: Navigation Links -->
   <div class="d-flex w-100 justify-content-center">
     <ul class="navbar-nav">
-      <li class="nav-item mx-1">
-        <a class="nav-link" href="browse.php">Browse</a>
+      <li class="nav-item mx-2">
+        <a class="nav-link font-weight-bold" href="browse.php">Browse</a>
       </li>
       <?php
-        if (isset($_SESSION['account_type']) && $_SESSION['account_type'] == 'buyer') {
-          echo('
-          <li class="nav-item mx-1">
-            <a class="nav-link" href="mybids.php">My Bids</a>
-          </li>
-          <li class="nav-item mx-1">
-            <a class="nav-link" href="recommendations.php">Recommended</a>
-          </li>');
-        }
-        if (isset($_SESSION['account_type']) && $_SESSION['account_type'] == 'seller') {
-          echo('
-          <li class="nav-item mx-1">
-            <a class="nav-link" href="mylistings.php">My Listings</a>
-          </li>
-          <li class="nav-item ml-3">
-            <a class="nav-link btn border-light" href="create_auction.php">+ Create auction</a>
-          </li>');
-        }
+        echo('
+        <li class="nav-item mx-2">
+          <a class="nav-link font-weight-bold" href="mylistings.php">My Listings</a>
+        </li>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link font-weight-bold" href="mybids.php">My Bids</a>
+        </li>
+
+        <li class="nav-item mx-2">
+          <a class="nav-link font-weight-bold" href="recommendations.php">Recommended</a>
+        </li>
+
+        <li class="nav-item ml-4">
+          <a class="nav-link btn border-light font-weight-bold" href="create_auction.php">+ Create auction</a>
+        </li>
+      
+        <li class="nav-item mx-2">
+          <a class="nav-link font-weight-bold" href="watchlist.php">Watchlist</a>
+        </li>)');
       ?>
     </ul>
   </div>
