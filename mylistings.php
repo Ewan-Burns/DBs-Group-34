@@ -9,13 +9,10 @@
 
   <?php
     // This page is for showing a user the auction listings they've made.
-    // It will be pretty similar to browse.php, except there is no search bar.
-    // This can be started after browse.php is working with a database.
-    // Feel free to extract out useful functions from browse.php and put them in
-    // the shared "utilities.php" where they can be shared by multiple files.
-    // TODO: Check user's credentials (cookie/session).
-    // TODO: Perform a query to pull up their auctions.
-    // TODO: Loop through results and print them out as list items.
+    // It is very similar to browse.php, except there is no search bar.
+
+    // TODO: Check user's credentials (session).
+    
     
     // Include the database connection file
     require_once 'database_connect.php';
@@ -28,23 +25,11 @@
     //User is logged in, so can display the auction listings they made 
       $user_id = $_SESSION['userID'];
 
+
       //------------Preparing pagination:--------------
 
       // Number of items per page
       $items_per_page = 12;
-
-      //Count the total number of items to calculate the number of pages
-      $count_query = "SELECT 
-                        COUNT(*) AS total 
-                      FROM 
-                        Items
-                      WHERE
-                        Items.userID = $user_id";
-      $count_result = $conn->query($count_query);
-      $total_items = $count_result->fetch_assoc()['total'];
-
-      // Calculate the total number of pages
-      $max_page = ceil($total_items / $items_per_page);
 
       // Get the current page from the URL, default to 1 if not set
       $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -54,36 +39,38 @@
 
       //----------------------------------------------
 
+
+
+      // TODO: Perform a query to pull up their auctions.
+
       // SQL query to pull the auctions that were listed by the user 
       $query = "SELECT 
-                  Items.itemID,
-                  Items.auctionTitle,
-                  Items.image,
-                  Items.description,
-                  Items.endDate,
-                  COALESCE(bids_summary.max_bid, Items.startingPrice) AS max_bid,
-                  COALESCE(bids_count.total_bids, 0) AS total_bids
+                    Items.itemID,
+                    Items.auctionTitle,
+                    Items.image,
+                    Items.description,
+                    Items.endDate,
+                    COALESCE(MAX(Bids.amount), Items.startingPrice) AS max_bid,  -- Get the highest bid or starting price if no bids
+                    COUNT(Bids.itemID) AS total_bids,                            -- Count the number of bids for the item
+                    COUNT(*) OVER() AS total_count                               -- Get the total number of items
                 FROM 
-                  Items
+                    Items
                 LEFT JOIN 
-                  (SELECT itemID, MAX(amount) AS max_bid 
-                  FROM Bids 
-                  GROUP BY itemID) AS bids_summary 
-                ON Items.itemID = bids_summary.itemID
-                LEFT JOIN 
-                  (SELECT itemID, COUNT(*) AS total_bids 
-                  FROM Bids 
-                  GROUP BY itemID) AS bids_count 
-                ON Items.itemID = bids_count.itemID
+                    Bids ON Items.itemID = Bids.itemID
                 WHERE 
-                  Items.userID = $user_id
+                    Items.userID = $user_id
+                GROUP BY 
+                    Items.itemID, Items.auctionTitle, Items.image, Items.description, Items.endDate, Items.startingPrice
                 ORDER BY 
-                  Items.endDate ASC
+                    Items.endDate ASC
                 LIMIT $items_per_page OFFSET $offset";
 
       // Execute query 
       $result = $conn->query($query);
+
       
+      // TODO: Loop through results and print them out as list items.
+
       // Displaying the listings
       //Check if the query worked and if there are any listings done by this user
       if ($result && $result->num_rows > 0) {
@@ -98,19 +85,25 @@
             $row['total_bids'],
             new DateTime($row['endDate']),
             $user_id
-        );
+          );
+          $total_items = $row['total_count'];
         }
-      // outcome if there are no listings under this userID
       } else {
         echo "<p> No auction listings found. List your first car for sale now!<p>";
       }
-      $result->free();
     } else {
       echo "<h2>Please log in to view your auction listings.<h2>";
     }
+
+    // Calculate the total number of pages
+    $max_page = ceil($total_items / $items_per_page);
+
+    $result->free();
+    $conn->close();
   ?>
 
 </div>
+
 
 
 <!-- Pagination for results listings -->
@@ -119,7 +112,9 @@
   
 <?php
 
-  // Copy any currently-set GET variables to the URL.
+  // ------------Perform the pagination:---------------
+
+  // Copy any currently set GET variables to the URL.
   $querystring = "";
   foreach ($_GET as $key => $value) {
     if ($key != "page") {
@@ -132,6 +127,7 @@
   $low_page = max(1, $curr_page - 2 - $low_page_boost);
   $high_page = min($max_page, $curr_page + 2 + $high_page_boost);
   
+  // Previous page link
   if ($curr_page != 1) {
     echo('
     <li class="page-item">
@@ -142,6 +138,7 @@
     </li>');
   }
     
+  // Numbered page links
   for ($i = $low_page; $i <= $high_page; $i++) {
     if ($i == $curr_page) {
       // Highlight the link
@@ -169,13 +166,13 @@
       </a>
     </li>');
   }
+  //-----------------------------------------
 ?>
+
 
   </ul>
 </nav>
 
-
 </div>
-
 
 <?php include_once("footer.php")?>

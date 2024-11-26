@@ -3,10 +3,10 @@
 // TODO: Extract $_POST variables, check they're OK, and attempt to make a bid.
 // Notify user of success/failure and redirect/give navigation options.
 
-
 // Retrieve item ID and bid amount from POST request
 $item_id = $_POST['item_id'] ?? null;
 $bid = $_POST['bid'] ?? null;
+
 $user_id = 1;  // hard coded userID to be 1 -- need to change this
 
 // Include the database connection file

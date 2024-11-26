@@ -1,9 +1,9 @@
 <?php 
-include_once("header.php"); // Include your header (navbar, etc.)
+include_once 'header.php'; // Include your header (navbar, etc.)
 require_once 'database_connect.php'; // Make sure to include your database connection
 
-// Get the item_id from the GET request (or post if you prefer)
-$item_id = $_GET['item_id'] ?? null; // Get the item_id from URL parameter
+// Get the item_id from the GET request from URL parameter
+$item_id = $_GET['item_id'] ?? null; 
 
 // If the item_id is not set, display an error message
 if (!$item_id) {
@@ -32,13 +32,13 @@ $query = "SELECT
             Items.image, 
             Items.description, 
             Items.startingPrice, 
-            Items.endDate
-";
+            Items.endDate";
 
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $item_id); // Bind item_id to query
 $stmt->execute();
 $result = $stmt->get_result();
+
 
 if ($result->num_rows > 0) {
     $item = $result->fetch_assoc();
@@ -51,8 +51,10 @@ if ($result->num_rows > 0) {
     echo "<div class='alert alert-danger'>No such item found.</div>";
     exit;
 }
-
 ?>
+
+
+<!-- Display the bid confirmation page -->
 
 <div class="container">
     <h2 class="my-4">Bid Confirmation</h2>

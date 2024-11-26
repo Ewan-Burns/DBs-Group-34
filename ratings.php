@@ -2,10 +2,18 @@
 // Check if item was purchased and POST request contains bidID
 include_once("database_connect.php");
 
-$_POST['itemID'] = 1;  // For testing purposes, you can set the bidID here
-$itemID = 1; // $_POST['itemID'];
+$item_id = $_POST['item_id'] ?? null;
 $rating = $_POST['rating'] ?? null;
-$userID = 1; // For testing purposes, you can set the userID here
+
+// Check which user owns the item
+$check_ownership_query = "SELECT userID FROM Items WHERE itemID = ?";
+$stmt = $conn->prepare($check_ownership_query);
+$stmt->bind_param("i", $item_id);
+$stmt->execute();
+$stmt->store_result();
+$stmt->bind_result($owner_id);
+$stmt->fetch();
+
 
 // Input rating - Handling form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['rating'])) {
@@ -21,11 +29,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['rating'])) {
     $query = "INSERT INTO Ratings (userID, rating, itemID) 
               VALUES (?, ?, ?)";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("iii", $userID, $rating, $itemID);
+    $stmt->bind_param("iii", $owner_id, $rating, $item_id);
     $stmt->execute();
-
-    echo "Thank you for your rating!";
     $stmt->close();  // Close the statement
+
+
+    // Show modal with thank you message
+    echo '
+        <html>
+        <head>
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        </head>
+        <body>
+            <!-- Modal HTML -->
+            <div class="modal fade" id="thankYouModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p>Thank you for your rating!</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="redirectToBrowse()">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JavaScript to trigger the modal -->
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    $("#thankYouModal").modal("show");
+                });
+
+                function redirectToBrowse() {
+                    window.location.href = "browse.php";
+                }
+            </script>
+        </body>
+        </html>
+        ';
 }
 
 ?>

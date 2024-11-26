@@ -95,9 +95,9 @@ if (empty($startPrice) || !is_numeric($startPrice) || $startPrice <= 0) {
     $errors[] = "The starting price is required and must be a positive number. Go back to the form and make the change.";
 }
 
-// Reserve price is optional but must be a positive number if provided
-if (!empty($reservePrice) && (!is_numeric($reservePrice) || $reservePrice <= 0)) {
-    $errors[] = "The reserve price must be a positive number if specified.Go back to the form and make the change.";
+// Reserve price must be a greater than the starting price
+if (empty($reservePrice) || !is_numeric($reservePrice) || $reservePrice <= $startPrice) {
+    $errors[] = "The reserve price is required and must be a greater than the starting price. Go back to the form and make the change.";
 }
 
 // Check if the end date is provided and is a valid future date
@@ -151,9 +151,6 @@ if (!empty($errors)) {
         }
     }
 
-    // Create status column entry
-    $status = (strtotime($endDate) > time()) ? 'Auction Open' : 'Auction Closed';
-
 
     // Insert query
     $sqlInsertItem = $conn->prepare(
@@ -165,15 +162,14 @@ if (!empty($errors)) {
             reservePrice, 
             endDate, 
             CarTypeID, 
-            status, 
             image
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?
         )"
     );
     // Bind the parameters: s = string, d = double, i = integer, b = blob
     // The `b` type is specific for binary data
-    $sqlInsertItem->bind_param("ssddssis", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $status, $image);                     
+    $sqlInsertItem->bind_param("ssddssis", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $image);                     
 
     // Execute query and check for success
     if ($sqlInsertItem->execute()) {

@@ -8,20 +8,20 @@ require_once 'database_connect.php';
 // Get item_id from the URL
 $item_id = $_GET['item_id'];
 
+$user_id = 1; // Hardcoded user ID for now
+
 // Default placeholder values in case the query fails
 $title = "Your query failed to retrieve the item's title.";
 $description = "Your query failed to retrieve the item's description.";
 $current_price = "Your query failed to retrieve the item's current price.";
 $num_bids = 0;
-$end_time = new DateTime('2020-11-02T00:00:00');
+$end_time = new DateTime('2020-01-01T00:00:00');
 $make = "N/A";
 $bodyType = "N/A";
 $colour = "N/A";
 $year = "N/A";
 $mileage = "N/A";
 $image_src = '';
-
-$user_id = 1; // Hardcoded user ID for now
 
 
 // Query the database for the item’s details
@@ -57,76 +57,92 @@ if (isset($item_id)) {
                 Items.startingPrice, 
                 Items.endDate";
 
-
   // Execute the query
   $result = $conn->query($query);
+
     
-    // Check if the item was found
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $title = $row['auctionTitle'];
-        $description = $row['description'];
-        $current_price = $row['highestBid'] ?? $row['startingPrice'];
-        $reservePrice = $row['reservePrice'];
-        $end_time = new DateTime($row['endDate']);
-        $image = $row['image'];
-        $item_user_id = $row['userID'];
-        $make = $row['make'];
-        $bodyType = $row['bodyType'];
-        $colour = $row['colour'];
-        $year = $row['year'];
-        $mileage = $row['mileage'];
-    }
-    
-    // Free result and close the statement
-    $result->free();
+  // Check if the item was found
+  if ($result->num_rows > 0) {
+      $row = $result->fetch_assoc();
+      $title = $row['auctionTitle'];
+      $description = $row['description'];
+      $current_price = $row['highestBid'] ?? $row['startingPrice'];
+      $reservePrice = $row['reservePrice'];
+      $end_time = new DateTime($row['endDate']);
+      $image = $row['image'];
+      $item_user_id = $row['userID'];
+      $make = $row['make'];
+      $bodyType = $row['bodyType'];
+      $colour = $row['colour'];
+      $year = $row['year'];
+      $mileage = $row['mileage'];
+  }
+  
+  // Free result and close the statement
+  $result->free();
 
-    // Check if user is already watching the item
-    $watching_query = "SELECT * FROM Watchlist WHERE userID = ? AND itemID = ?";
-    $stmt = $conn->prepare($watching_query);
-    $stmt->bind_param("ii", $user_id, $item_id);
-    $stmt->execute();
-    $stmt->store_result();
 
-    // If the query returns a row, it means the user is watching the item
-    $watching = $stmt->num_rows > 0;
 
-    // Get the highest bid placed by the user on this item
-    $bid_query = "SELECT MAX(amount) AS highest_bid FROM Bids WHERE userID = ? AND itemID = ?";
-    $stmt_bid = $conn->prepare($bid_query);
-    $stmt_bid->bind_param("ii", $user_id, $item_id);
-    $stmt_bid->execute();
-    $stmt_bid->bind_result($bid_placed);
-    $stmt_bid->fetch(); // Fetch the maximum bid amount
-    $stmt_bid->free_result();
+  // Check if user is already watching the item
+  $watching_query = "SELECT * FROM Watchlist WHERE userID = ? AND itemID = ?";
+  $stmt = $conn->prepare($watching_query);
+  $stmt->bind_param("ii", $user_id, $item_id);
+  $stmt->execute();
+  $stmt->store_result();
+  // If the query returns a row, it means the user is watching the item
+  $watching = $stmt->num_rows > 0;
 
-    // Get the userID of the user with the highest bid on this item
-    $highest_bid_query = "SELECT userID FROM Bids WHERE itemID = ? ORDER BY amount DESC LIMIT 1";
-    $stmt_highest_bid = $conn->prepare($highest_bid_query);
-    $stmt_highest_bid->bind_param("i", $item_id);
-    $stmt_highest_bid->execute();
-    $stmt_highest_bid->bind_result($highest_bid_user_id);
-    $stmt_highest_bid->fetch(); // Fetch the userID of the highest bid
-    $stmt_highest_bid->free_result();
-    
 
-    $stmt_bid->close();
-    $stmt->close();
 
-    // Showcase seller's average rating
-    $query = "SELECT AVG(rating) AS average_rating FROM Ratings 
-    WHERE userID = ?";
-    $stmt_rat = $conn->prepare($query);
-    $stmt_rat->bind_param("i", $item_user_id);  // The seller's itemID (userID who created the auction)
-    $stmt_rat->execute();
-    $result = $stmt_rat->get_result();
-    $row = $result->fetch_assoc();
+  // Get the highest bid placed by the user on this item
+  $bid_query = "SELECT MAX(amount) AS highest_bid FROM Bids WHERE userID = ? AND itemID = ?";
+  $stmt_bid = $conn->prepare($bid_query);
+  $stmt_bid->bind_param("ii", $user_id, $item_id);
+  $stmt_bid->execute();
+  $stmt_bid->bind_result($bid_placed);
+  $stmt_bid->fetch(); // Fetch the maximum bid amount
+  $stmt_bid->free_result();
 
-    $average_rating = $row['average_rating'] ?? 'N/A';  // Default to 'N/A' if no ratings exist
-    // echo "Average Rating: " . (is_numeric($average_rating) ? number_format($average_rating, 1) : $average_rating);
 
-        
-    $conn->close();
+
+  // Get the userID of the user with the highest bid on this item
+  $highest_bid_query = "SELECT userID FROM Bids WHERE itemID = ? ORDER BY amount DESC LIMIT 1";
+  $stmt_highest_bid = $conn->prepare($highest_bid_query);
+  $stmt_highest_bid->bind_param("i", $item_id);
+  $stmt_highest_bid->execute();
+  $stmt_highest_bid->bind_result($highest_bid_user_id);
+  $stmt_highest_bid->fetch(); // Fetch the userID of the highest bid
+  $stmt_highest_bid->free_result();
+
+
+
+  // Check if there already exists a rating for this item
+  $rating_query = "SELECT rating FROM Ratings WHERE itemID = ?";
+  $stmt_rating = $conn->prepare($rating_query);
+  $stmt_rating->bind_param("i", $item_id);
+  $stmt_rating->execute();
+  $stmt_rating->bind_result($rating_exists); 
+  $stmt_rating->fetch();
+  $stmt_rating->free_result();
+
+
+  $stmt_bid->close();
+  $stmt->close();
+
+
+
+  // Showcase seller's average rating
+  $query = "SELECT COALESCE(AVG(rating), 'N/A') AS average_rating FROM Ratings 
+  WHERE userID = ?";
+  $stmt_rat = $conn->prepare($query);
+  $stmt_rat->bind_param("i", $item_user_id);  // The seller's itemID (userID who created the auction)
+  $stmt_rat->execute();
+  $result = $stmt_rat->get_result();
+  $row = $result->fetch_assoc();
+
+  $average_rating = is_numeric($row['average_rating']) ? number_format($row['average_rating'], 2) . '/5' : 'N/A';
+      
+  $conn->close();
 }
 
 // Calculate time to auction end
@@ -138,6 +154,7 @@ if ($now < $end_time) {
     $time_remaining = "Auction ended";
 }
 
+
 // TODO: If the user has a session, use it to make a query to the database
 //       to determine if the user is already watching this item.
 //       For now, this is hardcoded.
@@ -145,6 +162,8 @@ $has_session = true;
 ?>
 
 
+
+<!-- HTML content for the listing page -->
 
 <div class="container-fluid">
 
@@ -154,8 +173,6 @@ $has_session = true;
   </div>
   <div class="col-sm-4 align-self-center"> <!-- Right col -->
 <?php
-  /* The following watchlist functionality uses JavaScript, but could
-     just as easily use PHP as in other places in the code */
   if ($now < $end_time):
 ?>
   <?php if ($item_user_id != $user_id && empty($bid_placed)): ?>
@@ -170,13 +187,38 @@ $has_session = true;
     </div>
   <?php elseif ($item_user_id == $user_id): ?>
     <?php if ($current_price > $reservePrice): ?>
-      <p class="lead">The reserve price has been met, it is no longer possible to delete the item.</p>
+      <p class="lead" style="font-size: 15px; color: darkred;">The reserve price has been met,<br> it is no longer possible to delete the item.</p>
     <?php else: ?>
-      <form method="POST" action="delete_item.php">
-        <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($item_id); ?>">
-        <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user_id); ?>">
-        <button type="submit" class="btn btn-danger btn-sm">Delete item</button>
-      </form>
+      <!-- Delete Button that triggers a modal for confirmation-->
+      <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeleteModal">
+        Delete item
+      </button>
+
+      <!-- Delete Confirmation Modal -->
+      <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to delete this item?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <!-- Delete Form inside the Modal -->
+              <form method="POST" action="delete_item.php" class="d-inline">
+                <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($item_id); ?>">
+                <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user_id); ?>">
+                <button type="submit" class="btn btn-danger">Delete item</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     <?php endif ?>
   <?php elseif ($bid_placed < $current_price): ?>
     <div class="my-3">
@@ -185,7 +227,8 @@ $has_session = true;
   <?php endif ?>
 <?php endif /* Print nothing otherwise */ ?>
 
-<?php if ($now > $end_time && $highest_bid_user_id == $user_id): ?>
+
+<?php if ($now > $end_time && $highest_bid_user_id == $user_id && empty($rating_exists)): ?>
     <!-- User won the auction -->
     <!-- "Rate Seller" Button (show only if auction ended and user won) -->
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rateSellerModal">
@@ -206,6 +249,7 @@ $has_session = true;
                 <!-- Modal Body -->
                 <div class="modal-body">
                     <form method="POST" action="ratings.php">
+                        <input type="hidden" id= "item_id" name="item_id" value="<?php echo $item_id; ?>">
                         <div class="form-group">
                             <label for="rating" class="form-label">Rate the Seller:</label>
                             <select name="rating" id="rating" class="form-select" required>
@@ -227,6 +271,7 @@ $has_session = true;
   </div>
 </div>
 
+
 <div class="row"> <!-- Row #2 with auction description + bidding info -->
   <div class="col-sm-4"> <!-- Left col with item info -->
 
@@ -238,8 +283,8 @@ $has_session = true;
     <div class="itemImage">
     <?php echo('<img src="data:image/jpeg;base64,' . base64_encode($image) . '" alt="' . htmlspecialchars($title) . '" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">'); ?>
     </div>
-
   </div>
+
  
   <div class="col-sm-4">
         <p><strong>Make:</strong> <?php echo($make); ?></p>
@@ -249,53 +294,55 @@ $has_session = true;
         <p><strong>Mileage:</strong> <?php echo($mileage); ?> miles</p>
   </div>
 
+
   <div class="col-sm-4"> <!-- Right col with bidding info -->
 
-    <p>
-<?php if ($now > $end_time): ?>
-     This auction ended <?php echo(date_format($end_time, 'j M H:i')) ?>
-     <!-- TODO: Print the result of the auction here? -->
-<?php else: ?>
-     Auction ends <?php echo(date_format($end_time, 'j M H:i') . $time_remaining) ?></p>  
-    <p class="lead">Current bid: £<?php echo(number_format($current_price, 2)) ?></p>
+    <?php if ($now > $end_time): ?>
+        This auction ended <?php echo(date_format($end_time, 'j M H:i')) ?>
+        <!-- TODO: Print the result of the auction here? -->
+    <?php else: ?>
+        Auction ends <?php echo(date_format($end_time, 'j M H:i') . $time_remaining) ?></p>  
+        <p class="lead">Current bid: £<?php echo(number_format($current_price, 2)) ?></p>
 
-    <?php if ($item_user_id != $user_id): ?>
-      <!-- Bidding form -->
-      <!-- Bidding form -->
-      <form method="POST" action="place_bid.php">
-        <!-- Hidden input for itemID -->
-        <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($item_id); ?>">
+        <?php if ($item_user_id != $user_id): ?>
+          <!-- Bidding form -->
+          <!-- Bidding form -->
+          <form method="POST" action="place_bid.php">
+            <!-- Hidden input for itemID -->
+            <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($item_id); ?>">
 
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text">£</span>
-          </div>
-          <input 
-            type="number" 
-            class="form-control" 
-            id="bid" 
-            name="bid" 
-            min="<?php echo htmlspecialchars($current_price); ?>" 
-            required 
-            oninput="this.setCustomValidity('')" 
-            oninvalid="setCustomMessage(this)">
-        </div>
-        <button type="submit" class="btn btn-primary form-control">Place bid</button>
-      </form>
-    <?php endif; ?>
-    <div class="my-3">
-      The seller's rating is: <?php echo number_format($average_rating, 2); ?> / 5</p>
-    </di>
-<?php endif ?>
-
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">£</span>
+              </div>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="bid" 
+                name="bid" 
+                min="<?php echo htmlspecialchars($current_price); ?>" 
+                required 
+                oninput="this.setCustomValidity('')" 
+                oninvalid="setCustomMessage(this)">
+            </div>
+            <button type="submit" class="btn btn-primary form-control">Place bid</button>
+          </form>
+        <?php endif; ?>
+        <div class="my-3">
+          The seller's rating is: <?php echo $average_rating; ?> </p>
+        <div>
+    <?php endif ?>
   
   </div> <!-- End of right col with bidding info -->
 
 </div> <!-- End of row #2 -->
 
+</div> <!-- End of container-fluid -->
+
 
 
 <?php include_once("footer.php")?>
+
 
 
 <script> 
@@ -345,6 +392,8 @@ function addToWatchlist(button) {
   }); // End of AJAX call
 
 } // End of addToWatchlist func
+
+
 
 function removeFromWatchlist(button) {
   // This performs an asynchronous call to a PHP function using POST method.

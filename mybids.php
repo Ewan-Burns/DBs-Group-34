@@ -9,16 +9,12 @@
 
   <?php
     // This page is for showing a user the auctions they've bid on.
-    // It will be pretty similar to browse.php, except there is no search bar.
-    // This can be started after browse.php is working with a database.
-    // Feel free to extract out useful functions from browse.php and put them in
-    // the shared "utilities.php" where they can be shared by multiple files.
+    // It is very similar to browse.php, except there is no search bar.
     
     require_once 'database_connect.php';
     
-    // TODO: Check user's credentials (cookie/session).
 
-    //session_start(); // Start the session
+    // TODO: Check user's credentials (cookie/session).
 
     // Hardcode a userID for testing purposes
     $_SESSION['userID'] = 1; // Replace 1 with the desired user ID
@@ -29,27 +25,11 @@
       // Display content, create/update sessionvariables.
       $user_id = $_SESSION['userID'];
 
+
       //------------Preparing pagination:--------------
 
       // Number of items per page
       $items_per_page = 12;
-
-      //Count the total number of items to calculate the number of pages
-      $count_query = "SELECT 
-                        COUNT(Items.itemID) AS total
-                      FROM 
-                        Items
-                      JOIN 
-                        Bids 
-                      ON 
-                        Items.itemID = Bids.itemID
-                      WHERE 
-                        Bids.userID = $user_id";
-      $count_result = $conn->query($count_query);
-      $total_items = $count_result->fetch_assoc()['total'];
-
-      // Calculate the total number of pages
-      $max_page = ceil($total_items / $items_per_page);
 
       // Get the current page from the URL, default to 1 if not set
       $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -59,35 +39,30 @@
 
       //----------------------------------------------
 
+
       // TODO: Perform a query to pull up the auctions they've bidded on.
 
       // Fetch items from the database
       $query = "SELECT 
-                  Items.itemID,
-                  Items.auctionTitle,
-                  Items.image,
-                  Items.description,
-                  Items.endDate,
-                  MAX(Bids.amount) AS max_bid,  -- Get the highest bid overall
-                  COALESCE(bids_count.total_bids, 0) AS total_bids
+                    Items.itemID,
+                    Items.auctionTitle,
+                    Items.image,
+                    Items.description,
+                    Items.endDate,
+                    MAX(Bids.amount) AS max_bid,  -- Get the highest bid overall
+                    COUNT(Bids.amount) AS total_bids,
+                    COUNT(*) OVER() AS total_count  -- Calculate the total number of items
                 FROM 
-                  Items
+                    Items
                 LEFT JOIN 
-                  Bids 
-                ON Items.itemID = Bids.itemID  -- Join to the Bids table to get all bids for the item
-                LEFT JOIN 
-                  (SELECT itemID, COUNT(*) AS total_bids 
-                   FROM Bids 
-                   GROUP BY itemID) AS bids_count 
-                ON Items.itemID = bids_count.itemID
+                    Bids ON Items.itemID = Bids.itemID
                 WHERE 
-                  Items.itemID IN (SELECT itemID FROM Bids WHERE userID = $user_id)  -- Only show items the user has bid on
+                    Bids.userID = $user_id  -- Only show items the user has bid on
                 GROUP BY 
-                  Items.itemID, Items.auctionTitle, Items.image, Items.description, Items.endDate, bids_count.total_bids
+                    Items.itemID, Items.auctionTitle, Items.image, Items.description, Items.endDate
                 ORDER BY 
-                  Items.endDate ASC
+                    Items.endDate ASC
                 LIMIT $items_per_page OFFSET $offset";
-
 
       // Execute the query
       $result = $conn->query($query);
@@ -109,17 +84,24 @@
                   new DateTime($row['endDate']),
                   $user_id
               );
+              $total_items = $row['total_count'];
           }
       } else {
-          echo "You have not bid on any items yet.";
+          echo "<p>You have not bid on any items yet.<p>";
       }
-      $result->free();
     } else {
       echo "<h2>Please log in to view your auction bids.<h2>";
     }
+
+    // Calculate the total number of pages
+    $max_page = ceil($total_items / $items_per_page);
+
+    $result->free();
+    $conn->close();
   ?>
 
 </div>
+
 
 
 <!-- Pagination for results bids -->
@@ -127,8 +109,8 @@
   <ul class="pagination justify-content-center">
   
 <?php
-  // Get the current page from the URL, default to 1 if not set
-  $curr_page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+
+  // ------------Perform the pagination:---------------
 
   // Copy any currently-set GET variables to the URL.
   $querystring = "";
@@ -137,14 +119,15 @@
       $querystring .= "$key=$value&amp;";
     }
   }
-
   
   // Calculate range for pagination links
-  $low_page = max(1, $curr_page - 2);
-  $high_page = min($max_page, $curr_page + 2);
+  $high_page_boost = max(3 - $curr_page, 0);
+  $low_page_boost = max(2 - ($max_page - $curr_page), 0);
+  $low_page = max(1, $curr_page - 2 - $low_page_boost);
+  $high_page = min($max_page, $curr_page + 2 + $high_page_boost);
 
   // Previous page link
-  if ($curr_page > 1) {
+  if ($curr_page != 1) {
     echo('
     <li class="page-item">
       <a class="page-link" href="mybids.php?' . $querystring . 'page=' . ($curr_page - 1) . '" aria-label="Previous">
@@ -165,7 +148,7 @@
   }
 
   // Next page link
-  if ($curr_page < $max_page) {
+  if ($curr_page != $max_page) {
     echo('
     <li class="page-item">
       <a class="page-link" href="mybids.php?' . $querystring . 'page=' . ($curr_page + 1) . '" aria-label="Next">
@@ -174,7 +157,9 @@
       </a>
     </li>');
   }
+  //-----------------------------------------
 ?>
+
 
   </ul>
 </nav>

@@ -111,8 +111,12 @@
 </div>
 
 <?php
- // Include the database connection
- require_once 'database_connect.php';
+  // Include the database connection
+  require_once 'database_connect.php';
+
+  $user_id = 1; // Hardcoded user ID for now
+
+
   // Retrieve these from the URL
   if (!isset($_GET['keyword'])) {
     // TODO: Define behavior if a keyword has not been specified. Then it shouldn't filter for anything
@@ -205,60 +209,51 @@
   // Include the database connection
   require_once 'database_connect.php';
 
+  // -------------Pagination purposes-------------
 
-  //------------Preparing pagination:--------------
-  $user_id = 1;
   // Number of items to display per page
-  $items_per_page = 10;
-
-  //Count the total number of items to calculate the number of pages
-  $count_query = "SELECT COUNT(*) AS total 
-    FROM Items 
-    WHERE Items.userID != $user_id";
-  $count_result = $conn->query($count_query);
-  $total_items = $count_result->fetch_assoc()['total'];
-
-  // Calculate the total number of pages
-  $max_page = ceil($total_items / $items_per_page);
-
-  // Get the current page from the URL, default to 1 if not set
-  $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+  $items_per_page = 12;
 
   // Calculate the offset based on the page number
   $offset = ($curr_page - 1) * $items_per_page;
 
+  // ---------------------------------------------
+
+
   //--------------Querying the items:-------------
   // Fetch items along with the highest current bid, ordered by endDate, with pagination
   $query = "SELECT 
-      Items.itemID,
-      Items.auctionTitle,
-      Items.image,
-      Items.description,
-      Items.startingPrice,
-      Items.endDate,
-      MAX(Bids.amount) AS highestBid,
-      COUNT(Bids.amount) AS bidCount
-    FROM 
-      Items
-    LEFT JOIN 
-      Bids ON Items.itemID = Bids.itemID
-    LEFT JOIN 
-      CarTypes ON Items.carTypeID = CarTypes.carTypeID
-    $where_sql
-    GROUP BY 
-      Items.itemID, 
-      Items.auctionTitle, 
-      Items.image, 
-      Items.description, 
-      Items.startingPrice, 
-      Items.endDate
-    $order_sql
-    LIMIT $items_per_page OFFSET $offset";
+                Items.itemID,
+                Items.auctionTitle,
+                Items.image,
+                Items.description,
+                Items.startingPrice,
+                Items.endDate,
+                MAX(Bids.amount) AS highestBid,
+                COUNT(Bids.amount) AS bidCount,
+                (SELECT COUNT(*) FROM Items 
+                LEFT JOIN CarTypes ON Items.carTypeID = CarTypes.carTypeID
+                $where_sql) AS totalItemCount
+            FROM 
+                Items
+            LEFT JOIN 
+                Bids ON Items.itemID = Bids.itemID
+            LEFT JOIN 
+                CarTypes ON Items.carTypeID = CarTypes.carTypeID
+            $where_sql
+            GROUP BY 
+                Items.itemID, 
+                Items.auctionTitle, 
+                Items.image, 
+                Items.description, 
+                Items.startingPrice, 
+                Items.endDate
+            $order_sql
+            LIMIT $items_per_page OFFSET $offset";
 
   // Execute the query
   $result = $conn->query($query);
 
-  $user_id = 1; // Hardcoded user ID for now
 
   // Display query results
   // Check if the query was successful
@@ -273,11 +268,13 @@
       $end_date = new DateTime($row['endDate']);
       $item_id = $row['itemID'];
       $image = $row['image'];
+      $total_items = $row['totalItemCount'];
 
       // Use the existing function to display the item
       print_listing_li($item_id, $title, $image, $description, $current_price, $num_bids, $end_date, $user_id);
     }
   } else {
+          $total_items = 0;
           echo "No items available.";
   }
 
@@ -285,6 +282,26 @@
   $result->free();
   $conn->close();
   //----------------------------------------------
+
+
+
+  //------------Preparing pagination:--------------
+
+  /*Count the total number of items to calculate the number of pages
+  $count_query = "SELECT COUNT(*) AS total 
+    FROM Items 
+    WHERE Items.userID != $user_id";
+  $count_result = $conn->query($count_query);
+  $total_items = $count_result->fetch_assoc()['total'];
+  */
+
+  // Calculate the total number of pages
+  $max_page = ceil($total_items / $items_per_page);
+
+  // Get the current page from the URL, default to 1 if not set
+  // $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+  // ----------------------------------------------
 
 ?>
 
@@ -337,7 +354,7 @@
     </li>');
   }
   
-  if ($curr_page != $max_page) {
+  if ($curr_page != $max_page && $total_items > 0) {
     echo('
     <li class="page-item">
       <a class="page-link" href="browse.php?' . $querystring . 'page=' . ($curr_page + 1) . '" aria-label="Next">

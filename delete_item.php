@@ -4,13 +4,6 @@ include_once("header.php");
 require_once("utilities.php");
 require_once("database_connect.php");
 
-session_start();
-
-// Check if the user is logged in
-if (!isset($_SESSION['userID'])) {
-    echo "<h2>You must be logged in to delete an auction item.</h2>";
-    exit();
-}
 
 // Get the item_id and user_id from the POST request
 $item_id = isset($_POST['item_id']) ? $_POST['item_id'] : null;
@@ -27,6 +20,7 @@ if ($item_id && $user_id) {
     $stmt->store_result();
     $stmt->bind_result($owner_id);
     $stmt->fetch();
+    
     
     if ($stmt->num_rows > 0 && $owner_id == $user_id) {
         // The user is the owner, so we can proceed with deletion

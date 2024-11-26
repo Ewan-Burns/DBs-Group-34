@@ -70,6 +70,25 @@ function print_listing_li($item_id, $title, $image, $desc, $price, $num_bids, $e
     $stmt_bid->fetch(); // Fetch the maximum bid amount
     $stmt_bid->close();
 
+    // Fetch the user ID of the item's owner
+    $user_query = "SELECT userID FROM Items WHERE itemID = ?";
+    $stmt_user = $conn->prepare($user_query);
+    $stmt_user->bind_param("i", $item_id);
+    $stmt_user->execute();
+    $stmt_user->bind_result($item_user_id);
+    $stmt_user->fetch();
+    $stmt_user->close();
+
+    // Fetch the reserve price for the item
+    $reserve_price_query = "SELECT reservePrice FROM Items WHERE itemID = ?";
+    $stmt_reserve_price = $conn->prepare($reserve_price_query);
+    $stmt_reserve_price->bind_param("i", $item_id);
+    $stmt_reserve_price->execute();
+    $stmt_reserve_price->bind_result($reserve_price);
+    $stmt_reserve_price->fetch();
+    $stmt_reserve_price->close();
+
+
     // Close the database connection
     $conn->close();
 
@@ -103,8 +122,15 @@ function print_listing_li($item_id, $title, $image, $desc, $price, $num_bids, $e
                       )
                     : '')
               ) . '
+            ' . ($now > $end_time && $item_user_id == $user_id
+                ? ($price >= $reserve_price
+                    ? '<span style="display: inline-block; font-size: 0.8em; color: #008000; background-color: #e6ffe6; padding: 3px 6px; border-radius: 4px;">Your item was sold!</span>'
+                    : '<span style="display: inline-block; font-size: 0.8em; color: #ffa500; background-color: #fff4e6; padding: 3px 6px; border-radius: 4px;">Reserve price was not met.</span>'
+                )
+                : '') . '
         </div>
     </div>';
+
 
 }
 
