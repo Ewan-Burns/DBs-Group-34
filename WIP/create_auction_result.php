@@ -4,12 +4,6 @@
 
 <?php
 
-// Check if the user is logged in
-if (!isset($_SESSION['userID'])) {
-    echo "You need to log in to create an auction.";
-    exit;
-}
-$user_id = $_SESSION['userID'];
 // This function takes the form data and adds the new auction to the database.
 
 /* TODO #1: Connect to MySQL database (perhaps by requiring a file that
@@ -25,9 +19,19 @@ require_once 'database_connect.php';
             make sure it can be inserted into the database. If there is an
             issue, give some semi-helpful feedback to user. */
 
+// Check if the form was submitted, commenting out because not sure what we would need this for
+//if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Debugging: Print the POST array
+    //echo "<pre>";
+    //var_dump($_POST);
+    //echo "</pre>";
+    
+    // Your existing code for variable extraction...
+//}
+
 
 // Extract form variables with default empty values
-$title = $_POST['auctionTitle'] ?? '';
+$title = $_POST['auctionTitle'] ?? 'test';
 $description = $_POST['auctionDescription'] ?? '';
 $make = $_POST['auctionMake'] ?? '';
 $bodyType = $_POST['auctionBodyType'] ?? '';
@@ -37,6 +41,16 @@ $mileage = $_POST['auctionMileage'] ?? '';
 $startPrice = $_POST['auctionStartPrice'] ?? '';
 $reservePrice = $_POST['auctionReservePrice'] ?? '';
 $endDate = $_POST['auctionEndDate'] ?? '';
+
+/* Echo all the form variables for debugging
+echo "<h3>Form Data Received:</h3>";
+echo "<p><strong>Auction Title:</strong> " . htmlspecialchars($title) . "</p>";
+echo "<p><strong>Details:</strong> " . htmlspecialchars($details) . "</p>";
+echo "<p><strong>Category:</strong> " . htmlspecialchars($category) . "</p>";
+echo "<p><strong>Starting Price:</strong> " . htmlspecialchars($startPrice) . "</p>";
+echo "<p><strong>Reserve Price:</strong> " . htmlspecialchars($reservePrice) . "</p>";
+echo "<p><strong>End Date:</strong> " . htmlspecialchars($endDate) . "</p>";
+*/
 
 // Initialize an array to store any validation errors
 $errors = [];
@@ -61,7 +75,8 @@ if (isset($_FILES['auctionImage']) && $_FILES['auctionImage']['error'] === 0) {
     // The file was uploaded successfully, so read the image's content
     $image = file_get_contents($_FILES['auctionImage']['tmp_name']);
 } else {
-
+    // If no image was uploaded or an error occurred, add an error message
+    $errors[] = "The auction image is required. Go back to the form and make the change.";
 }
 
 //Check if Make, Body Type, and Colour are selected 
@@ -132,7 +147,7 @@ if (!empty($errors)) {
     $carTypeExists = false;
     $carTypeID = null;
 
-    $sqlCheckCarType = "SELECT CarTypeID FROM CarTypes WHERE make='$make' AND bodyType='$bodyType' AND colour='$colour' AND year='$year'";
+    $sqlCheckCarType = "SELECT CarTypeID FROM CarTypes WHERE make = '$make' AND bodyType = '$bodyType' AND colour = '$colour' AND year = '$year'";
     $resultCheckCarType = $conn->query($sqlCheckCarType);
 
     //Create CarTypeID or copy pre-existing CarTypeID
@@ -150,29 +165,18 @@ if (!empty($errors)) {
         }
     }
 
-    // Create status column entry
-    $status = (strtotime($endDate) > time()) ? 'Auction Open' : 'Auction Closed';
+   // Create status column entry
+   $status = (strtotime($endDate) > time()) ? 'Auction Open' : 'Auction Closed';
 
 
-    // Insert query
-    $sqlInsertItem = $conn->prepare(
-        "INSERT INTO Items (
-            userID,
-            auctionTitle, 
-            description, 
-            startingPrice, 
-            reservePrice, 
-            endDate, 
-            CarTypeID, 
-            status, 
-            image
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )"
-    );
-    // Bind the parameters: s = string, d = double, i = integer, b = blob
+   // Insert query, need to add file
+   $sqlInsertItem = $conn->prepare("INSERT INTO Items (auctionTitle, description, startingPrice, reservePrice, endDate, CarTypeID, status, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+   // Bind the parameters: s = string, d = double, i = integer, b = blob
     // The `b` type is specific for binary data
-    $sqlInsertItem->bind_param("ssddssis", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $status, $image);                     
+    $sqlInsertItem->bind_param("ssddssis", $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $status, $image);
+
+    //$sqlInsertItem = "INSERT INTO Items (auctionTitle, image, description, startingPrice, reservePrice, endDate, CarTypeID, status)
+    //VALUES ('$title', '$image', '$description', '$startPrice', '$reservePrice', '$endDate', '$carTypeID', '$status')";
 
     // Execute query and check for success
     if ($sqlInsertItem->execute()) {
@@ -180,7 +184,11 @@ if (!empty($errors)) {
     } else {
         echo "<p>Error inserting auction: " . $sqlInsertItem->error . "</p>";
     }
-
+   // if ($conn->query($sqlInsertItem) === TRUE) {
+     //   echo "<p>Success: Auction created successfully.</p>";
+    //} else {
+     //   echo "<p>Error inserting auction: " . $conn->error . "</p>";
+    //}
 
     // Close the connection
     $sqlInsertItem->close();

@@ -1,5 +1,9 @@
 <?php
 
+// TODO: Extract $_POST variables, check they're OK, and attempt to create
+// an account. Notify user of success/failure and redirect/give navigation 
+// options.
+
 // Include the database connection file
 session_start();
 require_once 'database_connect.php';
@@ -56,8 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param('ssssssssss', $email, $passwordHash, $firstName, $lastName, $dateOfBirth, $country, $street, $houseNumber, $postcode, $city);
         if ($stmt->execute()) {
             // Notify user of success
-            $_SESSION['message'] = 'Account successfully created, please login.';
-            header('Location: register.php');
+            $_SESSION['message'] = 'Registration successful!';
+            header('Location: success.php');
             exit;
         } else {
             // Notify user of failure

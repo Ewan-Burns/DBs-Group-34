@@ -4,8 +4,7 @@
   // ONLY after the user's login credentials have been verified via a 
   // database query.
   session_start();
-  $_SESSION['logged_in'] = false;
-  $_SESSION['account_type'] = 'buyer';
+  require_once 'database_connect.php';
 ?>
 
 
@@ -41,7 +40,7 @@
           if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
             echo '<a class="nav-link " href="logout.php">Logout</a>';
           } else {
-            echo '<button type="button" class="btn nav-link" data-toggle="modal" data-target="#loginModal">Login</button>';
+            echo '<a class="nav-link" href="login.php">Login</a>';
           }
         ?>
       </li>
@@ -84,33 +83,3 @@
 <div class="text-center" style="padding-top: 70px;">
   <img src="images/mustang.jpg" alt="Mustang" class="img-fluid" style="width: 100%; height: auto; z-index: -1">
 </div>
-
-<!-- Login modal -->
-<div class="modal fade" id="loginModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Login</h4>
-      </div>
-
-      <!-- Modal body -->
-      <div class="modal-body">
-        <form method="POST" action="login_result.php">
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="text" class="form-control" id="email" placeholder="Email">
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Password">
-          </div>
-          <button type="submit" class="btn btn-primary form-control">Sign in</button>
-        </form>
-        <div class="text-center">or <a href="register.php">create an account</a></div>
-      </div>
-
-    </div>
-  </div>
-</div> <!-- End modal -->

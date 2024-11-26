@@ -48,7 +48,7 @@ $resultColours = $conn->query($sqlColours);
           <label for="auctionImage" class="col-sm-2 col-form-label text-right">Upload Image</label>
           <div class="col-sm-10">
             <input type="file" class="form-control" id="auctionImage" name="auctionImage" accept="image/*" onchange="toggleRemoveButton()">
-            <small id="imageHelp" class="text-danger"> *Required.<span> Upload an image of the car. Please ensure the image is a jpeg file.</small>
+            <small id="imageHelp" class="text-danger"> *Required.<span> Upload an image of the car.</small>
                 
             <!-- Remove button (appears only when an image is uploaded) -->
             <div id="removeButtonContainer" style="display: none; margin-top: 10px;">

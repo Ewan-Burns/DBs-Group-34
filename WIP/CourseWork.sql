@@ -11,22 +11,14 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
 -- Database: `CourseWork`
---
 
--- --------------------------------------------------------
-
---
 -- Table structure for table `Users`
---
-
 CREATE TABLE `Users` (
   `userID` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
@@ -53,42 +45,10 @@ INSERT INTO `Users` (`userID`, `email`, `passwordHash`, `firstName`, `lastName`,
 (3, 'ewan.burns.24@ucl.ac.uk', 'yxcvbn', 'Ewan', 'Burns', '2002-03-12', 'London', '', 0, '', ''),
 (4, 'paula.droeghoff.24@ucl.ac.uk', 'edcvfr', 'Paula', 'Droeghoff', '2000-06-16', 'London', '', 0, '', '');
 
---
--- Table structure for table `Admins`
---
 
-CREATE TABLE `Admins` (
-  `userID` int(11) NOT NULL,
-  PRIMARY KEY (`userID`),
-  FOREIGN KEY (`userID`) REFERENCES `Users`(`userID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
 
---
--- Table structure for table `Items`
---
-
-CREATE TABLE `Items` (
-  `itemID` int(11) NOT NULL,
-  `userID` int(11) DEFAULT NULL,
-  `auctionTitle` text NOT NULL,
-  `carTypeID` int(11) DEFAULT NULL,
-  `image` longblob DEFAULT NULL,
-  `startingPrice` float NOT NULL,
-  `reservePrice` float NOT NULL,
-  `endDate` datetime NOT NULL,
-  `status` text DEFAULT NULL,
-  `description` longtext NOT NULL,
-  PRIMARY KEY (`itemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---  --------------------------------------------------------
-
---
 -- Table structure for table `Bids`
---
-
 CREATE TABLE `Bids` (
   `bidID` int(11) NOT NULL,
   `itemID` int(11) NOT NULL,
@@ -98,25 +58,18 @@ CREATE TABLE `Bids` (
   PRIMARY KEY (`bidID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
 -- Table structure for table `BodyType`
---
-
 CREATE TABLE `BodyType` (
   `bodyID` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`bodyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Dumping data for table `BodyType`
---
-
 INSERT INTO `BodyType` (`bodyID`) VALUES
 ('Coupe'),
 ('Convertible'),
 ('SUV');
+
 
 -- --------------------------------------------------------
 
@@ -173,6 +126,24 @@ INSERT INTO `Colour` (`colourID`) VALUES
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `Items`
+--
+
+CREATE TABLE `Items` (
+  `itemID` int(11) NOT NULL,
+  `userID` int(11) DEFAULT NULL,
+  `auctionTitle` text NOT NULL,
+  `carTypeID` int(11) DEFAULT NULL,
+  `image` longblob DEFAULT NULL,
+  `startingPrice` float NOT NULL,
+  `reservePrice` float NOT NULL,
+  `endDate` datetime NOT NULL,
+  `status` text DEFAULT NULL,
+  `description` longtext NOT NULL,
+  PRIMARY KEY (`itemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- Table structure for table `Make`
 --
 
@@ -180,6 +151,7 @@ CREATE TABLE `Make` (
   `makeID` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`makeID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 --
 -- Dumping data for table `Make`
@@ -209,18 +181,18 @@ CREATE TABLE `Ratings` (
   PRIMARY KEY (`userID`, `rating`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
+--
+-- Table structure for table `Watchlist`
+--
 
---
--- Table structure for table `watchlist`
---
 CREATE TABLE `watchlist` (
   `userID` int(11) NOT NULL,
   `itemID` int(11) NOT NULL,
-  PRIMARY KEY (`userID`, `itemID`)
+  PRIMARY KEY (`userID`,`itemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
--- --------------------------------------------------------
 
+
+-- --------------------------------------------------------
 --
 -- Indexes for dumped tables
 --
@@ -235,3 +207,6 @@ ALTER TABLE `Bids`
 --
 -- Indexes for table `Buyers`
 --
+
+--ALTER TABLE `Buyers`
+--  ADD UNIQUE KEY `userID` (`userID`) USING BTREE
