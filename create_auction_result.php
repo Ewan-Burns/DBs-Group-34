@@ -157,7 +157,8 @@ if (!empty($errors)) {
         "INSERT INTO Items (
             userID,
             auctionTitle, 
-            description, 
+            description,
+            mileage 
             startingPrice, 
             reservePrice, 
             endDate, 
