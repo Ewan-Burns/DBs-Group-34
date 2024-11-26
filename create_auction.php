@@ -30,11 +30,11 @@ $resultColours = $conn->query($sqlColours);
           <label for="auctionTitle" class="col-sm-2 col-form-label text-right">Auction Title</label>
           <div class="col-sm-10">
             <input type="text" class="form-control" id="auctionTitle" name="auctionTitle" placeholder="e.g. Black Mercedes SLS">
-            <small id="titleHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> A short description of your car, which will display in listings.</small>
+            <small id="titleHelp" class="form-text text-muted"><span class="text-danger">* Required.</span> A short description of your car, including the car's model.</small>
           </div>
         </div>
 
-        <!-- Description field -->
+        <!-- Description field --> 
         <div class="form-group row">
           <label for="auctionDescription" class="col-sm-2 col-form-label text-right">Description</label>
           <div class="col-sm-10">
