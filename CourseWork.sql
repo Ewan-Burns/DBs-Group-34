@@ -29,8 +29,12 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `Admins` (
   `userID` int(11) NOT NULL,
-  PRIMARY KEY (`userID`)
+  PRIMARY KEY (`userID`),
+  FOREIGN KEY (`userID`) REFERENCES `Users`(`userID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--Insert admin users
+INSERT INTO `Admins` (`userID`) VALUES (5); -- Add user IDs of admin users
 
 -- --------------------------------------------------------
 
