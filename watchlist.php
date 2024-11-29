@@ -15,24 +15,29 @@
     // the shared "utilities.php" where they can be shared by multiple files.
     
     require_once 'database_connect.php';
+
+    //------------Preparing pagination:--------------
+
+    // Number of items per page
+    $items_per_page = 12;
+
+    // Get the current page from the URL, default to 1 if not set
+    $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+    // Calculate the offset based on the page number
+    $offset = ($curr_page - 1) * $items_per_page;
+
+    $total_items = 0;
+
+    //----------------------------------------------
+
     
     // TODO: Check user's credentials (cookie/session).
-
-    //session_start(); // Start the session
-
-    // Hardcode a userID for testing purposes
-    $_SESSION['userID'] = 1; // Replace 1 with the desired user ID
-
 
     if (isset($_SESSION['userID'])) {
         // User recognised.
         // Display content, create/update sessionvariables.
         $user_id = $_SESSION['userID'];
-
-        //------------Preparing pagination:--------------
-
-        // Number of items per page
-        $items_per_page = 12;
 
         // Count the total number of items to calculate the number of pages for the watchlist
         $count_query = "SELECT 
@@ -49,19 +54,6 @@
         $count_result = $conn->query($count_query);
         $total_items = $count_result->fetch_assoc()['total'];
 
-        // Calculate the total number of pages
-        $max_page = ceil($total_items / $items_per_page);
-
-        // Get the current page from the URL, default to 1 if not set
-        $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
-        // Calculate the offset based on the page number
-        $offset = ($curr_page - 1) * $items_per_page;
-
-        //----------------------------------------------
-
-
-        
         // Fetch items from the database for the watchlist page
         $query = "SELECT 
                     Items.itemID,
@@ -127,6 +119,9 @@
     } else {
         echo "<h2>Please log in to view your watchtlist.<h2>";
     }
+
+    // Calculate the total number of pages
+    $max_page = ceil($total_items / $items_per_page);
     ?>
 
 </div>

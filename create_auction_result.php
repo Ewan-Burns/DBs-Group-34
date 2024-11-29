@@ -4,7 +4,12 @@
 
 <?php
 
-$user_id = 1; // For testing purposes, you can set the user ID here
+// Check if the user is logged in
+if (!isset($_SESSION['userID'])) {
+    echo "You need to log in to create an auction.";
+    exit;
+}
+$user_id = $_SESSION['userID']; // The logged-in user ID
 
 // This function takes the form data and adds the new auction to the database.
 
@@ -157,8 +162,7 @@ if (!empty($errors)) {
         "INSERT INTO Items (
             userID,
             auctionTitle, 
-            description,
-            mileage 
+            description, 
             startingPrice, 
             reservePrice, 
             endDate, 
@@ -170,7 +174,7 @@ if (!empty($errors)) {
     );
     // Bind the parameters: s = string, d = double, i = integer, b = blob
     // The `b` type is specific for binary data
-    $sqlInsertItem->bind_param("ssddssis", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $image);                     
+    $sqlInsertItem->bind_param("isddssis", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $image);                     
 
     // Execute query and check for success
     if ($sqlInsertItem->execute()) {

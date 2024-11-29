@@ -17,27 +17,25 @@
     // Include the database connection file
     require_once 'database_connect.php';
 
-    // Hardcode a userID for testing purposes
-    $_SESSION['userID'] = 1; // Replace 1 with the desired user ID
+    //------------Preparing pagination:--------------
+
+    // Number of items per page
+    $items_per_page = 12;
+
+    // Get the current page from the URL, default to 1 if not set
+    $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+    // Calculate the offset based on the page number
+    $offset = ($curr_page - 1) * $items_per_page;
+
+    $total_items = 0;
+
+    //----------------------------------------------
 
     // Check if the user is logged in 
     if (isset($_SESSION['userID'])) {
     //User is logged in, so can display the auction listings they made 
       $user_id = $_SESSION['userID'];
-
-
-      //------------Preparing pagination:--------------
-
-      // Number of items per page
-      $items_per_page = 12;
-
-      // Get the current page from the URL, default to 1 if not set
-      $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
-      // Calculate the offset based on the page number
-      $offset = ($curr_page - 1) * $items_per_page;
-
-      //----------------------------------------------
 
 
 
@@ -91,6 +89,7 @@
       } else {
         echo "<p> No auction listings found. List your first car for sale now!<p>";
       }
+      $result->free();
     } else {
       echo "<h2>Please log in to view your auction listings.<h2>";
     }
@@ -98,12 +97,10 @@
     // Calculate the total number of pages
     $max_page = ceil($total_items / $items_per_page);
 
-    $result->free();
     $conn->close();
   ?>
 
 </div>
-
 
 
 <!-- Pagination for results listings -->

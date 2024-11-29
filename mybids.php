@@ -12,32 +12,29 @@
     // It is very similar to browse.php, except there is no search bar.
     
     require_once 'database_connect.php';
+
+    //------------Preparing pagination:--------------
+
+    // Number of items per page
+    $items_per_page = 12;
+
+    // Get the current page from the URL, default to 1 if not set
+    $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+    // Calculate the offset based on the page number
+    $offset = ($curr_page - 1) * $items_per_page;
+
+    $total_items = 0;
+
+    //----------------------------------------------
     
 
     // TODO: Check user's credentials (cookie/session).
-
-    // Hardcode a userID for testing purposes
-    $_SESSION['userID'] = 1; // Replace 1 with the desired user ID
-
 
     if (isset($_SESSION['userID'])) {
       // User recognised.
       // Display content, create/update sessionvariables.
       $user_id = $_SESSION['userID'];
-
-
-      //------------Preparing pagination:--------------
-
-      // Number of items per page
-      $items_per_page = 12;
-
-      // Get the current page from the URL, default to 1 if not set
-      $curr_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
-      // Calculate the offset based on the page number
-      $offset = ($curr_page - 1) * $items_per_page;
-
-      //----------------------------------------------
 
 
       // TODO: Perform a query to pull up the auctions they've bidded on.
@@ -89,6 +86,7 @@
       } else {
           echo "<p>You have not bid on any items yet.<p>";
       }
+      $result->free();
     } else {
       echo "<h2>Please log in to view your auction bids.<h2>";
     }
@@ -96,7 +94,6 @@
     // Calculate the total number of pages
     $max_page = ceil($total_items / $items_per_page);
 
-    $result->free();
     $conn->close();
   ?>
 

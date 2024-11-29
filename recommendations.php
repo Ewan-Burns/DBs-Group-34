@@ -12,9 +12,7 @@
     session_start(); // Start the session if it's not already active
   }
 
-  $_SESSION['user_id'] = 1; // For testing purposes, you can set the user ID here
-
-  $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+  $user_id = $_SESSION['userID'];
   
   // Section 1: Recommendations based on the user's bids
   if ($user_id) {

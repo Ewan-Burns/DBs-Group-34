@@ -8,8 +8,6 @@ require_once 'database_connect.php';
 // Get item_id from the URL
 $item_id = $_GET['item_id'];
 
-$user_id = 1; // Hardcoded user ID for now
-
 // Default placeholder values in case the query fails
 $title = "Your query failed to retrieve the item's title.";
 $description = "Your query failed to retrieve the item's description.";
@@ -22,6 +20,27 @@ $colour = "N/A";
 $year = "N/A";
 $mileage = "N/A";
 $image_src = '';
+
+
+// Check if the user is logged in
+if (!isset($_SESSION['userID'])) {
+  echo "You need to log in to view this page.";
+  exit;
+}
+
+$user_id = $_SESSION['userID'];
+
+// Check if the user is an admin
+$is_admin = false;
+$admin_check_query = "SELECT * FROM Admins WHERE userID = ?";
+$stmt = $conn->prepare($admin_check_query);
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result->num_rows > 0) {
+  $is_admin = true;
+}
+$stmt->close();
 
 
 // Query the database for the item’s details
@@ -185,8 +204,8 @@ $has_session = true;
       <button type="button" class="btn btn-danger btn-sm" onclick="removeFromWatchlist(this)" data-item-id="<?php echo $item_id; ?>" 
       data-user-id="<?php echo $user_id; ?>">Remove watch</button>
     </div>
-  <?php elseif ($item_user_id == $user_id): ?>
-    <?php if ($current_price > $reservePrice): ?>
+  <?php elseif ($item_user_id == $user_id || $is_admin): ?>
+    <?php if ($current_price > $reservePrice && !$is_admin): ?>
       <p class="lead" style="font-size: 15px; color: darkred;">The reserve price has been met,<br> it is no longer possible to delete the item.</p>
     <?php else: ?>
       <!-- Delete Button that triggers a modal for confirmation-->

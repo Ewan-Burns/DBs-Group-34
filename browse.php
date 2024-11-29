@@ -114,8 +114,7 @@
   // Include the database connection
   require_once 'database_connect.php';
 
-  $user_id = 1; // Hardcoded user ID for now
-
+  $user_id = $_SESSION['userID'];
 
   // Retrieve these from the URL
   if (!isset($_GET['keyword'])) {
