@@ -27,11 +27,12 @@ function print_listing_li($item_id, $title, $image, $desc, $price, $num_bids, $e
 {
     require 'database_connect.php';
 
-    // Truncate descriptions at a word limit
-    $word_limit = 15; // Maximum number of words to display
-    $words = explode(' ', $desc);
-    if (count($words) > $word_limit) {
-        $desc_shortened = implode(' ', array_slice($words, 0, $word_limit)) . '...';
+    // Truncate descriptions at a character limit
+
+    $character_limit = 90; // Set the character limit
+
+    if (strlen($desc) > $character_limit) {
+        $desc_shortened = substr($desc, 0, $character_limit) . '...';
     } else {
         $desc_shortened = $desc;
     }

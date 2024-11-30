@@ -27,17 +27,18 @@ require_once 'database_connect.php';
             issue, give some semi-helpful feedback to user. */
 
 
-// Extract form variables with default empty values
-$title = $_POST['auctionTitle'] ?? '';
-$description = $_POST['auctionDescription'] ?? '';
-$make = $_POST['auctionMake'] ?? '';
-$bodyType = $_POST['auctionBodyType'] ?? '';
-$colour = $_POST['auctionColour'] ?? '';
-$year = $_POST['auctionYear'] ?? '';
-$mileage = $_POST['auctionMileage'] ?? '';
-$startPrice = $_POST['auctionStartPrice'] ?? '';
-$reservePrice = $_POST['auctionReservePrice'] ?? '';
-$endDate = $_POST['auctionEndDate'] ?? '';
+// Extract and validate form data
+$user_id = (int)$_SESSION['userID']; // Integer
+$title = trim($_POST['auctionTitle'] ?? ''); // String
+$description = trim($_POST['auctionDescription'] ?? ''); // String
+$make = trim($_POST['auctionMake'] ?? ''); // String
+$bodyType = trim($_POST['auctionBodyType'] ?? ''); // String
+$colour = trim($_POST['auctionColour'] ?? ''); // String
+$year = (int)($_POST['auctionYear'] ?? 0); // Integer
+$mileage = (int)($_POST['auctionMileage'] ?? 0); // Integer
+$startPrice = (float)($_POST['auctionStartPrice'] ?? 0); // Float
+$reservePrice = (float)($_POST['auctionReservePrice'] ?? 0); // Float
+$endDate = trim($_POST['auctionEndDate'] ?? ''); // String (datetime)
 
 // Initialize an array to store any validation errors
 $errors = [];
@@ -167,14 +168,16 @@ if (!empty($errors)) {
             reservePrice, 
             endDate, 
             CarTypeID, 
-            image
+            image,
+            mileage
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
         )"
     );
+    
     // Bind the parameters: s = string, d = double, i = integer, b = blob
     // The `b` type is specific for binary data
-    $sqlInsertItem->bind_param("isddssis", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $image);                     
+    $sqlInsertItem->bind_param("issddsisi", $user_id, $title, $description, $startPrice, $reservePrice, $endDate, $carTypeID, $image, $mileage);                     
 
     // Execute query and check for success
     if ($sqlInsertItem->execute()) {
