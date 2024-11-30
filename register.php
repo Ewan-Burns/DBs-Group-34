@@ -24,10 +24,6 @@ session_start();
   <div class="container my-5">
     <h2>Register</h2>
     <?php
-    if (isset($_SESSION['message'])) {
-        echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['message']) . '</div>';
-        unset($_SESSION['message']); // Clear the message after displaying
-    }
     if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
         echo '<div class="alert alert-danger"><ul>';
         foreach ($_SESSION['errors'] as $error) {
@@ -58,6 +54,7 @@ session_start();
           <div class="form-row">
             <div class="col">
               <input type="number" class="form-control" id="day" name="day" placeholder="Day" required>
+              <small id="dayHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
             </div>
             <div class="col">
               <select class="form-control" id="month" name="month" required>
@@ -75,9 +72,19 @@ session_start();
                 <option value="11">November</option>
                 <option value="12">December</option>
               </select>
+              <small id="monthHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
             </div>
             <div class="col">
-              <input type="number" class="form-control" id="year" name="year" placeholder="Year" required>
+              <select class="form-control" id="yearOfBirth" name="yearOfBirth" required>
+                <option value="">Year</option>
+                <?php
+                  $currentYear = date("Y");
+                  for ($year = $currentYear; $year >= 1910; $year--) {
+                    echo "<option value=\"$year\">$year</option>";
+                  }
+                ?>
+              </select>
+              <small id="yearHelp" class="form-text text-muted"><span class="text-danger">* Required.</span></small>
             </div>
           </div>
         </div>

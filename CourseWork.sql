@@ -86,10 +86,6 @@ CREATE TABLE `Buyers` (
 -- Dumping data for table `Buyers`
 --
 
-INSERT INTO `Buyers` (`userID`) VALUES
-(3),
-(4);
-
 -- --------------------------------------------------------
 
 --
@@ -158,7 +154,6 @@ CREATE TABLE `Items` (
   `startingPrice` float NOT NULL,
   `reservePrice` float NOT NULL,
   `endDate` datetime NOT NULL,
-  `status` text DEFAULT NULL,
   `description` longtext NOT NULL,
   PRIMARY KEY (`itemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

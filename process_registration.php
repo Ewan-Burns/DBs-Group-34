@@ -1,37 +1,28 @@
 <?php
-
-// Include the database connection file
 session_start();
 require_once 'database_connect.php';
 
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Extract and sanitize form inputs
+    $firstName = $_POST['firstName'];
+    $lastName = $_POST['lastName'];
+    $day = $_POST['day'];
+    $month = $_POST['month'];
+    $yearOfBirth = $_POST['yearOfBirth'];
+    $houseNumber = $_POST['houseNumber'];
+    $street = $_POST['street'];
+    $city = $_POST['city'];
+    $postcode = $_POST['postcode'];
+    $country = $_POST['country'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $passwordConfirmation = $_POST['passwordConfirmation'];
 
-// Check if the registration form has been submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Extract form data
-    $firstName = $_POST['firstName'] ?? '';
-    $lastName = $_POST['lastName'] ?? '';
-    $day = $_POST['day'] ?? '';
-    $month = $_POST['month'] ?? '';
-    $year = $_POST['year'] ?? '';
-    $dateOfBirth = "$year-$month-$day";
-    $country = $_POST['country'] ?? '';
-    $street = $_POST['street'] ?? '';
-    $houseNumber = $_POST['houseNumber'] ?? '';
-    $postcode = $_POST['postcode'] ?? '';
-    $city = $_POST['city'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $passwordConfirmation = $_POST['passwordConfirmation'] ?? '';
-
-    // Validate form data
+    // Validate inputs
     $errors = [];
     if (empty($firstName)) $errors[] = 'First name is required';
     if (empty($lastName)) $errors[] = 'Last name is required';
-    if (empty($day) || empty($month) || empty($year)) $errors[] = 'Date of birth is required';
+    if (empty($day) || empty($month) || empty($yearOfBirth)) $errors[] = 'Date of birth is required';
     if (empty($country)) $errors[] = 'Country is required';
     if (empty($street)) $errors[] = 'Street is required';
     if (empty($houseNumber)) $errors[] = 'House number is required';
@@ -47,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
         // Insert the new user into the Users table
+        $dateOfBirth = "$yearOfBirth-$month-$day";
         $sql = "INSERT INTO Users (email, passwordHash, firstName, lastName, dateOfBirth, country, street, houseNumber, postcode, city) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {
@@ -55,9 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt->bind_param('ssssssssss', $email, $passwordHash, $firstName, $lastName, $dateOfBirth, $country, $street, $houseNumber, $postcode, $city);
         if ($stmt->execute()) {
-            // Notify user of success
-            $_SESSION['message'] = 'Account successfully created, please login.';
-            header('Location: register.php');
+            // Registration successful, set success message and redirect to login page
+            $_SESSION['success_message'] = 'Account creation successful. Please login.';
+            header("Location: login.php");
             exit;
         } else {
             // Notify user of failure
