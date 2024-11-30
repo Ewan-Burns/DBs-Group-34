@@ -5,7 +5,6 @@
   
 <h2 class="my-3">My listings</h2>
 
-<div class="row justify-content-center align-items-center">
 
   <?php
     // This page is for showing a user the auction listings they've made.
@@ -87,11 +86,15 @@
           $total_items = $row['total_count'];
         }
       } else {
-        echo "<p> No auction listings found. List your first car for sale now!<p>";
+        echo '<div class="alert alert-info">
+                No auction listings found. List your first car for sale now!
+              </div>';
       }
       $result->free();
     } else {
-      echo "<h2>Please log in to view your auction listings.<h2>";
+      echo '<div class="alert alert-warning">
+            Please <a href="login.php">log in</a> to see your listings.
+          </div>';
     }
 
     // Calculate the total number of pages
@@ -154,7 +157,7 @@
     </li>');
   }
   
-  if ($curr_page != $max_page) {
+  if ($curr_page != $max_page && $max_page > 1) {
     echo('
     <li class="page-item">
       <a class="page-link" href="mylsitings.php?' . $querystring . 'page=' . ($curr_page + 1) . '" aria-label="Next">

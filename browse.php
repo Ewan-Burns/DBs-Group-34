@@ -114,7 +114,12 @@
   // Include the database connection
   require_once 'database_connect.php';
 
-  $user_id = $_SESSION['userID'];
+  // Check if session is active
+  if (isset($_SESSION['userID'])) {
+    $user_id = $_SESSION['userID'];
+  } else {
+    $user_id = null;
+  }
 
   // Retrieve these from the URL
   if (!isset($_GET['keyword'])) {

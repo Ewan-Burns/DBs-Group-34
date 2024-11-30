@@ -12,7 +12,12 @@
     session_start(); // Start the session if it's not already active
   }
 
-  $user_id = $_SESSION['userID'];
+  // Check if session is active
+  if (isset($_SESSION['userID'])) {
+    $user_id = $_SESSION['userID'];
+  } else {
+    $user_id = null;
+  }
   
   // Section 1: Recommendations based on the user's bids
   if ($user_id) {
@@ -82,6 +87,7 @@
                         i.image,
                         i.description,
                         i.startingPrice,
+                        i.endDate,
                         MAX(b.amount) as highestBid,
                         COUNT(b.amount) AS bidCount
                     FROM Items i
@@ -108,10 +114,10 @@
                         $item_id = $row['itemID'];
                         $image = $row['image'];
                         $num_bids = $row['bidCount'];
-
+                        $end_date = $row['endDate'];
                         
                         print_listing_li($item_id, $title, $image, $description, 
-                                       $current_price, $num_bids, new DateTime(), $user_id);
+                                       $current_price, $num_bids, new DateTime($end_date), $user_id);
                     }
                     echo '</ul>';
                 } else {
@@ -176,6 +182,7 @@
                     i.image,
                     i.description,
                     i.startingPrice,
+                    i.endDate,
                     MAX(b.amount) as highestBid,
                     COUNT(b.amount) AS bidCount
                 FROM Items i
@@ -202,8 +209,10 @@
                     $item_id = $row['itemID'];
                     $image = $row['image'];
                     $num_bids = $row['bidCount'];
+                    $end_date = $row['endDate'];
 
-                    print_listing_li($item_id, $title, $image, $description, $current_price, $num_bids, new DateTime(), $user_id);
+                    print_listing_li($item_id, $title, $image, $description,
+                                     $current_price, $num_bids, new DateTime($end_date), $user_id);
                 }
                 echo '</ul>';
             } else {

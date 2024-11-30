@@ -5,8 +5,6 @@
 
 <h2 class="my-3">My bids</h2>
 
-<div class="row justify-content-center align-items-center">
-
   <?php
     // This page is for showing a user the auctions they've bid on.
     // It is very similar to browse.php, except there is no search bar.
@@ -84,11 +82,15 @@
               $total_items = $row['total_count'];
           }
       } else {
-          echo "<p>You have not bid on any items yet.<p>";
+        echo '<div class="alert alert-info">
+                You have not bid on any items yet.
+              </div>';
       }
       $result->free();
     } else {
-      echo "<h2>Please log in to view your auction bids.<h2>";
+      echo '<div class="alert alert-warning">
+            Please <a href="login.php">log in</a> to see your bids.
+          </div>';
     }
 
     // Calculate the total number of pages
@@ -145,7 +147,7 @@
   }
 
   // Next page link
-  if ($curr_page != $max_page) {
+  if ($curr_page != $max_page && $max_page > 1) {
     echo('
     <li class="page-item">
       <a class="page-link" href="mybids.php?' . $querystring . 'page=' . ($curr_page + 1) . '" aria-label="Next">

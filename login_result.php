@@ -39,7 +39,7 @@ if (empty($errors)) {
             $_SESSION['userID'] = $row['userID'];
             $_SESSION['email'] = $email;
             $_SESSION['logged_in'] = true;
-            header('Location: index.php'); // Redirect to the homepage or another page
+            header('Location: browse.php'); // Redirect to the homepage or another page
             exit;
         } else {
             $errors[] = 'Incorrect password';

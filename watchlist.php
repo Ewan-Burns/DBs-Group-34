@@ -5,7 +5,6 @@
 
 <h2 class="my-3">My watchlist</h2>
 
-<div class="row justify-content-center align-items-center">
 
     <?php
     // This page is for showing a user the auctions they've bid on.
@@ -113,11 +112,15 @@
                 );
             }
         } else {
-            echo "You have not put any items on the watchlist yet.";
+            echo '<div class="alert alert-info">
+                    You have not put any items on the watchlist yet.
+                  </div>';
         }
         $result->free();
     } else {
-        echo "<h2>Please log in to view your watchtlist.<h2>";
+      echo '<div class="alert alert-warning">
+              Please <a href="login.php">log in</a> to see your watchlist.
+            </div>';
     }
 
     // Calculate the total number of pages
@@ -169,7 +172,7 @@
   }
 
   // Next page link
-  if ($curr_page < $max_page) {
+  if ($curr_page < $max_page && $max_page > 1) {
     echo('
     <li class="page-item">
       <a class="page-link" href="watchlist.php?' . $querystring . 'page=' . ($curr_page + 1) . '" aria-label="Next">

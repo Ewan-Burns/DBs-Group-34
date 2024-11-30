@@ -55,12 +55,12 @@ if (isset($item_id)) {
                 Items.endDate, 
                 Items.image,
                 Items.userID,
+                Items.mileage,
                 COALESCE(MAX(Bids.amount), Items.startingPrice) AS highestBid,
                 CarTypes.make, 
                 CarTypes.bodyType, 
                 CarTypes.colour, 
-                CarTypes.year,
-                CarTypes.mileage
+                CarTypes.year
             FROM 
                 Items
             LEFT JOIN 
@@ -194,7 +194,7 @@ $has_session = true;
 <?php
   if ($now < $end_time):
 ?>
-  <?php if ($item_user_id != $user_id && empty($bid_placed)): ?>
+  <?php if ($item_user_id != $user_id && empty($bid_placed) && !$is_admin): ?>
     <div id="watch_nowatch" <?php if ($has_session && $watching) echo('style="display: none"');?> >
       <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addToWatchlist(this)" data-item-id="<?php echo $item_id; ?>" 
       data-user-id="<?php echo $user_id; ?>">+ Add to watchlist</button>
@@ -247,7 +247,7 @@ $has_session = true;
 <?php endif /* Print nothing otherwise */ ?>
 
 
-<?php if ($now > $end_time && $highest_bid_user_id == $user_id && empty($rating_exists)): ?>
+<?php if ($now > $end_time && $highest_bid_user_id == $user_id && empty($rating_exists)  && !$is_admin): ?>
     <!-- User won the auction -->
     <!-- "Rate Seller" Button (show only if auction ended and user won) -->
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rateSellerModal">
@@ -310,7 +310,7 @@ $has_session = true;
         <p><strong>Colour:</strong> <?php echo($colour); ?></p>
         <p><strong>Body Type:</strong> <?php echo($bodyType); ?></p>
         <p><strong>Year:</strong> <?php echo($year); ?></p>
-        <p><strong>Mileage:</strong> <?php echo($mileage); ?> miles</p>
+        <p><strong>Mileage:</strong> <?php echo($mileage); ?> km</p>
   </div>
 
 
@@ -319,7 +319,7 @@ $has_session = true;
     <?php if ($now > $end_time): ?>
         This auction ended <?php echo(date_format($end_time, 'j M H:i')) ?>
         <!-- TODO: Print the result of the auction here? -->
-    <?php else: ?>
+    <?php elseif (!$is_admin): ?>
         Auction ends <?php echo(date_format($end_time, 'j M H:i') . $time_remaining) ?></p>  
         <p class="lead">Current bid: £<?php echo(number_format($current_price, 2)) ?></p>
 

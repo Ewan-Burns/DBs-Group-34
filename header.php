@@ -5,6 +5,20 @@
   // database query.
   session_start();
   require_once 'database_connect.php';
+
+  $user_id = $_SESSION['userID'];
+
+  // Check if the user is an admin
+  $is_admin = false;
+  $admin_check_query = "SELECT * FROM Admins WHERE userID = ?";
+  $stmt = $conn->prepare($admin_check_query);
+  $stmt->bind_param('i', $user_id);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  if ($result->num_rows > 0) {
+    $is_admin = true;
+  }
+  $stmt->close();
 ?>
 
 
@@ -32,7 +46,7 @@
   
   <!-- Top Row: Brand and Login/Logout -->
   <div class="d-flex w-100 justify-content-between">
-    <a class="navbar-brand" href="#">Vintage Cars <!--CHANGEME!--></a>
+    <a class="navbar-brand" style="font-size: 30px" href="#">Vintage Cars <!--CHANGEME!--></a>
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         <?php
@@ -54,27 +68,36 @@
         <a class="nav-link font-weight-bold" href="browse.php">Browse</a>
       </li>
       <?php
-        echo('
-        <li class="nav-item mx-2">
-          <a class="nav-link font-weight-bold" href="mylistings.php">My Listings</a>
-        </li>
+        if (!$is_admin) {
+          echo('
+          <li class="nav-item mx-2">
+            <a class="nav-link font-weight-bold" href="mylistings.php">My Listings</a>
+          </li>
 
-        <li class="nav-item mx-2">
-          <a class="nav-link font-weight-bold" href="mybids.php">My Bids</a>
-        </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link font-weight-bold" href="mybids.php">My Bids</a>
+          </li>
 
-        <li class="nav-item mx-2">
-          <a class="nav-link font-weight-bold" href="recommendations.php">Recommended</a>
-        </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link font-weight-bold" href="recommendations.php">Recommended</a>
+          </li>
 
-        <li class="nav-item mx-2">
-          <a class="nav-link font-weight-bold" href="watchlist.php">Watchlist</a>
-        </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link font-weight-bold" href="watchlist.php">Watchlist</a>
+          </li>
 
-        <li class="nav-item ml-5">
-          <a class="nav-link btn border-light font-weight-bold" href="create_auction.php">+ Create auction</a>
-        </li>
-        ');
+          <li class="nav-item ml-5">
+            <a class="nav-link btn border-light font-weight-bold" href="create_auction.php">+ Create auction</a>
+          </li>
+          ');
+        } else {
+          echo('
+              <li class="nav-item mx-2">
+                <a class="nav-link font-weight-bold" href="manage_profiles.php">Manage Profiles</a>
+              </li>
+          ');
+        }
+
       ?>
     </ul>
   </div>
