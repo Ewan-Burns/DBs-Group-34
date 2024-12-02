@@ -44,20 +44,21 @@
                     Items.image,
                     Items.description,
                     Items.endDate,
-                    MAX(Bids.amount) AS max_bid,  -- Get the highest bid overall
+                    MAX(Bids.amount) AS max_bid,     -- Get the highest bid overall
                     COUNT(Bids.amount) AS total_bids,
-                    COUNT(*) OVER() AS total_count  -- Calculate the total number of items
+                    COUNT(*) OVER() AS total_count   -- Calculate the total number of items
                 FROM 
                     Items
                 LEFT JOIN 
                     Bids ON Items.itemID = Bids.itemID
                 WHERE 
-                    Bids.userID = $user_id  -- Only show items the user has bid on
+                    Items.itemID IN (SELECT itemID FROM Bids WHERE userID = $user_id)  -- Only items the user has bid on
                 GROUP BY 
                     Items.itemID, Items.auctionTitle, Items.image, Items.description, Items.endDate
                 ORDER BY 
                     Items.endDate ASC
                 LIMIT $items_per_page OFFSET $offset";
+
 
       // Execute the query
       $result = $conn->query($query);

@@ -52,7 +52,7 @@ function print_listing_li($item_id, $title, $image, $desc, $price, $num_bids, $e
     // Handle image encoding or use a placeholder
     $image_src = isset($image) && !empty($image)
         ? 'data:image/jpeg;base64,' . base64_encode($image) // Encode image as Base64
-        : 'images/imageplaceholder.jpg'; // Default placeholder image
+        : 'images/KidsCar.jpg'; // Default placeholder image
 
     // Check if the user is watching the item
     $watching_query = "SELECT * FROM Watchlist WHERE userID = ? AND itemID = ?";

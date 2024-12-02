@@ -20,9 +20,9 @@ if ($item_id && $user_id) {
     $stmt->store_result();
     $stmt->bind_result($owner_id);
     $stmt->fetch();
+
     
-    
-    if ($stmt->num_rows > 0 && $owner_id == $user_id) {
+    if ($stmt->num_rows > 0) {
         // The user is the owner, so we can proceed with deletion
         $delete_query = "DELETE FROM Items WHERE itemID = ?";
         $delete_stmt = $conn->prepare($delete_query);
@@ -31,7 +31,7 @@ if ($item_id && $user_id) {
         if ($delete_stmt->execute()) {
             // Deletion successful, redirect back to the listings page
             echo "<h2>Item deleted successfully!</h2>";
-            header("Location: mylistings.php"); // Redirect to the user's listings page
+            header("Location: browse.php"); // Redirect to the user's listings page
             exit();
         } else {
             echo "<h2>Failed to delete item. Please try again later.</h2>";

@@ -22,9 +22,11 @@ $mileage = "N/A";
 $image_src = '';
 
 
-// Check if the user is logged in
+//Check if the user is logged in
 if (!isset($_SESSION['userID'])) {
-  echo "You need to log in to view this page.";
+  echo '<div class="alert alert-warning">
+            You need to <a href="login.php">log in</a> to see furhter details.
+          </div>';
   exit;
 }
 
@@ -96,6 +98,11 @@ if (isset($item_id)) {
       $year = $row['year'];
       $mileage = $row['mileage'];
   }
+
+  // Handle image encoding or use a placeholder
+  $image_src = isset($image) && !empty($image)
+  ? 'data:image/jpeg;base64,' . base64_encode($image) // Encode image as Base64
+  : 'images/KidsCar.jpg'; // Default placeholder image
   
   // Free result and close the statement
   $result->free();
@@ -300,7 +307,7 @@ $has_session = true;
 
     <!--Show the image-->
     <div class="itemImage">
-    <?php echo('<img src="data:image/jpeg;base64,' . base64_encode($image) . '" alt="' . htmlspecialchars($title) . '" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">'); ?>
+    <?php echo('<img src="' . htmlspecialchars($image_src) . '" alt="' . htmlspecialchars($title) . '" class="img-thumbnail" style="max-width: 400px; max-height: 400px;">'); ?>
     </div>
   </div>
 

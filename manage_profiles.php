@@ -5,11 +5,6 @@
 // session_start();
 require_once 'database_connect.php';
 
-// Enable error reporting (for debugging, disable in production)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Check if the user is logged in
 if (!isset($_SESSION['userID'])) {
     echo "You need to log in to view this page.";
@@ -38,30 +33,21 @@ if (!$is_admin) {
 // Handle user deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
     // Validate the userID to delete
-    if (isset($_POST['user_id']) && ctype_digit($_POST['user_id'])) {
+    if (isset($_POST['user_id'])) {
         $delete_user_id = (int)$_POST['user_id'];
 
         // Prevent admin from deleting themselves
-        if ($delete_user_id === $user_id) {
+        if ($delete_user_id == $user_id) {
             echo "<script>alert('You cannot delete your own account.');</script>";
         } else {
-            // Prepare the DELETE query
+            // DELETE query
             $delete_query = "DELETE FROM Users WHERE userID = ?";
             $stmt = $conn->prepare($delete_query);
-
-            if ($stmt) {
-                $stmt->bind_param('i', $delete_user_id);
-                if ($stmt->execute()) {
-                    echo "<script>alert('User deleted successfully.');</script>";
-                    echo "<script>window.location.href = 'manage_profiles.php';</script>";
-                    exit();
-                } else {
-                    echo "Error deleting user: " . $stmt->error;
-                }
-                $stmt->close();
-            } else {
-                echo "Prepare failed: (" . $conn->errno . ") " . $conn->error;
-            }
+            $stmt->bind_param('i', $delete_user_id);
+            $stmt->execute();
+            echo "<script>alert('User deleted successfully.');</script>";
+            echo "<script>window.location.href = 'manage_profiles.php';</script>";
+            $stmt->close();
         }
     } else {
         echo "Invalid user ID.";
@@ -69,12 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
 }
 
 // Fetch all users
-$user_query = "SELECT userID, email, firstName, lastName, dateOfBirth, country, street, houseNumber, postcode, city FROM Users";
+$user_query = "SELECT userID, email, firstName, lastName, dateOfBirth FROM Users";
 $result = $conn->query($user_query);
-
-if (!$result) {
-    die("Query failed: " . $conn->error);
-}
 
 $conn->close();
 ?>
